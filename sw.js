@@ -1,5 +1,5 @@
 const V = "sg-astra-v1";
-const FILES = ["./", "index.html", "css/style.css", "js/state.js", "js/core.js", "js/views.js", "js/actions.js", "js/features.js", "js/extras.js", "js/boot.js", "manifest.webmanifest", "icons/icon.svg", "icons/icon-192.png"];
+const FILES = ["./", "index.html", "style.css", "state.js", "core.js", "views.js", "actions.js", "features.js", "extras.js", "boot.js", "manifest.webmanifest", "icon.svg", "icon-192.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(k => Promise.all(k.filter(x => x !== V).map(x => caches.delete(x)))).then(() => self.clients.claim())); });
 // Network first (so updates appear right after you push to GitHub), cache as offline fallback

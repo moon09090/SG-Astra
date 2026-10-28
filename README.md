@@ -11,7 +11,7 @@ Coaching-institute app for admin, teachers, students and parents.
 5. Open the link on a phone and choose **Add to Home Screen** to install the app with the SG heart icon.
 
 ## Where each file goes
-Keep these exact folders in the repository: `css/style.css`, `js/*.js` (7 files), `icons/*` (6 files), `.github/workflows/deploy.yml`. The rest (`index.html`, `manifest.webmanifest`, `sw.js`, `README.md`) go in the main folder.
+Upload every file into the main folder of the repository — no folders needed. Then create the workflow with **Add file → Create new file**, name it `.github/workflows/deploy.yml`, and paste the contents of `deploy.yml`.
 
 ## First run
 Open the app → **Admin** → ID `1888`. Add teachers and students (you choose each person’s unique ID), set your UPI ID, then share the IDs. Teachers create batches, homework and tests; parents log in with their child’s student ID.
