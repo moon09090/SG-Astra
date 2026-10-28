@@ -1,1 +1,64 @@
+# SG Astra – publishes your app to GitHub Pages automatically.
+# Save this file in your repository as:  .github/workflows/deploy.yml
+# It works whether you uploaded the files flat (all in one place) or in folders.
 
+name: Deploy SG Astra
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Check JavaScript for errors
+        run: |
+          for f in *.js js/*.js; do
+            if [ -f "$f" ]; then node --check "$f"; fi
+          done
+
+      - name: Arrange the site files
+        run: |
+          mkdir -p _site/css _site/js _site/icons
+          cp index.html manifest.webmanifest sw.js _site/
+          for p in style.css css/style.css; do
+            if [ -f "$p" ]; then cp "$p" _site/css/style.css; fi
+          done
+          for n in state core views actions features extras boot; do
+            for p in "$n.js" "js/$n.js"; do
+              if [ -f "$p" ]; then cp "$p" "_site/js/$n.js"; fi
+            done
+          done
+          for n in icon.svg icon-512.png icon-192.png icon-maskable-512.png apple-touch-icon.png favicon-32.png; do
+            for p in "$n" "icons/$n"; do
+              if [ -f "$p" ]; then cp "$p" "_site/icons/$n"; fi
+            done
+          done
+          touch _site/.nojekyll
+          find _site -type f | sort
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
