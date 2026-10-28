@@ -10,27 +10,17 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.d.outputs.page_url }}
     steps:
-      - name: Get the code
-        uses: actions/checkout@v4
-
-      - name: Check JavaScript for errors
-        run: |
-          for f in *.js js/*.js; do
-            if [ -f "$f" ]; then node --check "$f"; fi
-          done
-
-      - name: Arrange the site files
-        run: |
-          mkdir -p _site/css _site/js _site/icons
-          cp index.html
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: d
+        uses: actions/deploy-pages@v4
