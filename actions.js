@@ -14,7 +14,7 @@ S.gen={qs,bid:b,title:`${s} · ${ch} (${l})`,note};R()}
 function pub(){const g=S.gen;db.tests.push({id:uid(),bid:g.bid,title:g.title,qs:g.qs,res:{}});S.gen=null;sv();S.msg="Test published";R()}
 function submitT(id){const x=db.tests.find(q=>q.id==id);let sc=0;x.qs.forEach((q,i)=>{if(document.querySelector(`input[name=q${i}]:checked`)?.value==q.a)sc++});x.res[S.u.id]=sc;S.take=null;sv();S.msg=`Score: ${sc}/${x.qs.length}`;R()}
 async function doubt(){const q=v("d1");if(!q)return;let a;try{a=await ai("Explain simply for a school student: "+q)}catch(x){a="AI answer unavailable here—your teacher will reply."}db.doubts.push({sid:S.u.id,q,a});sv();R()}
-function wa(p,m){window.open("https://wa.me/"+(String(p).length==10?"91":"")+String(p).replace(/\D/g,"")+"?text="+encodeURIComponent(m),"_blank")}
+function wa(p,m){const u="https://wa.me/"+(String(p).length==10?"91":"")+String(p).replace(/\D/g,"")+"?text="+encodeURIComponent(m);if(window.Capacitor)location.href=u;else window.open(u,"_blank")}
 function notice(){const t=v("n2");if(!t)return;const by=S.r=="admin"?"Admin":u_().name,k=v("n1")||"all";db.ann.push({t,by,d:today()});sv();try{Notification.requestPermission().then(p=>p=="granted"&&new Notification("SG Astra",{body:t}))}catch(x){}
 let st=db.students;if(S.r=="teacher")st=k=="all"?db.students.filter(s=>myBatches(s.id).some(b=>b.tid==S.u.id)):db.students.filter(s=>db.batches.find(b=>b.id==k)?.sids.includes(s.id));
 S.wa=st.map(s=>[s.phone,s.name,"📢 SG Astra: "+t]);S.msg="Posted in the app. Send via WhatsApp below.";R()}

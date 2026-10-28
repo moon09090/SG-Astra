@@ -2,16 +2,12 @@
 
 Coaching-institute app for admin, teachers, students and parents.
 
-## Put it online (GitHub Pages)
-1. Create a new GitHub repository (public).
-2. Upload everything from this folder, keeping the folders (`css`, `js`, `icons`, `.github/workflows`).
-   - Phone tip: use **Add file → Create new file** and type the path (for example `.github/workflows/deploy.yml`), then paste the file’s text.
-3. Open **Settings → Pages**, set **Source** to **GitHub Actions**.
-4. Push to the `main` branch. The **Actions** tab runs "Deploy SG Astra" and shows your link: `https://YOUR-NAME.github.io/REPO-NAME/`.
-5. Open the link on a phone and choose **Add to Home Screen** to install the app with the SG heart icon.
-
-## Where each file goes
-Upload every file into the main folder of the repository — no folders needed. Then create the workflow with **Add file → Create new file**, name it `.github/workflows/deploy.yml`, and paste the contents of `deploy.yml`.
+## Get the Android app (APK)
+1. Upload every file in this folder to the main folder of a GitHub repository (it can be private).
+2. Create `.github/workflows/android.yml` (Add file → Create new file, type that name) and paste the contents of `android.yml`.
+3. Open the **Actions** tab → **Build Android APK** → **Run workflow**. It takes about 5–8 minutes.
+4. When it shows a green tick, open the repository’s **Releases** section → **SG Astra for Android** → download `SG-Astra.apk`.
+5. Open the file on your Android phone and allow “Install unknown apps” when asked.
 
 ## First run
 Open the app → **Admin** → ID `1888`. Add teachers and students (you choose each person’s unique ID), set your UPI ID, then share the IDs. Teachers create batches, homework and tests; parents log in with their child’s student ID.
