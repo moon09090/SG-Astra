@@ -1,0 +1,82 @@
+:root{--a:#1a0b3b;--b:#5b21b6;--c:#ec4899;--d:#f0abfc;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;font:15px system-ui,sans-serif;color:#fff;min-height:100vh;background:linear-gradient(135deg,var(--a),var(--b),var(--a));background-size:300% 300%;animation:bg 14s ease infinite;overflow-x:hidden}
+@keyframes bg{50%{background-position:100% 100%}}
+@keyframes up{from{transform:translateY(0)}to{transform:translateY(-115vh)}}
+@keyframes sway{from{transform:translateX(-30vw)}to{transform:translateX(30vw)}}
+@keyframes tw{50%{opacity:.1;transform:scale(2)}}
+@keyframes pulse{from{transform:scale(.2);opacity:.6}to{transform:scale(4);opacity:0}}
+@keyframes pop{from{opacity:0;transform:translateY(12px)}}
+.fx{position:fixed;inset:0;pointer-events:none;z-index:0}.fx span{position:absolute;border-radius:50%;background:var(--c);opacity:.25}
+[data-fx="0"] .fx span{top:100%;animation:up var(--t) linear infinite}
+[data-fx="1"] .fx span{width:70vw!important;height:40px!important;border-radius:40px;filter:blur(30px);animation:sway var(--t) ease-in-out infinite alternate}
+[data-fx="2"] .fx span{width:4px!important;height:4px!important;background:var(--d);animation:tw 3s ease-in-out infinite;box-shadow:0 0 10px var(--d)}
+[data-fx="3"] .fx span{filter:blur(18px);animation:sway var(--t) ease-in-out infinite alternate}
+[data-fx="4"] .fx span{background:none;border:2px solid var(--c);animation:pulse var(--t) ease-out infinite}
+#app{position:relative;z-index:1;max-width:760px;margin:auto;padding:14px 14px 90px}
+h1{margin:0;font-size:26px;background:linear-gradient(90deg,var(--d),var(--c));-webkit-background-clip:text;background-clip:text;color:transparent}
+h3{margin:4px 0 8px;color:var(--d)}
+.card{background:rgba(255,255,255,.09);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.18);border-radius:18px;padding:14px;margin:10px 0;animation:pop .5s both}
+input,select,textarea{width:100%;padding:10px;margin:4px 0;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.35);color:#fff;font:inherit}
+button{border:0;border-radius:10px;padding:10px 14px;margin:3px 2px;font:inherit;font-weight:600;color:#111;background:linear-gradient(90deg,var(--d),var(--c));cursor:pointer}
+button.g{background:rgba(255,255,255,.15);color:#fff}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{flex:1;min-width:110px}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:5;display:flex;overflow-x:auto;gap:4px;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));background:rgba(0,0,0,.65);backdrop-filter:blur(14px)}
+nav button{flex:0 0 auto;background:none;color:#fff}nav button.on{background:linear-gradient(90deg,var(--d),var(--c));color:#111}
+.tag{display:inline-block;padding:2px 8px;border-radius:20px;background:rgba(255,255,255,.18);font-size:12px}
+small,.mut{opacity:.75}.sw{display:inline-block;width:100%;height:36px;border-radius:10px}
+.card{box-shadow:0 8px 30px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.05);transition:transform .25s,box-shadow .25s}.card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.45),0 0 24px var(--c)}
+button{position:relative;overflow:hidden;transition:transform .15s}button:active{transform:scale(.95)}button:not(.g)::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:rgba(255,255,255,.5);transform:skewX(-20deg);animation:shine 3.5s infinite}@keyframes shine{to{left:130%}}
+h1{background-size:200% auto;animation:tt 5s linear infinite}@keyframes tt{to{background-position:200% center}}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}.tile{padding:14px;border-radius:16px;background:linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.2);animation:pop .6s both}.tile b{font-size:26px;display:block;color:var(--d)}
+.bar{height:8px;border-radius:8px;background:rgba(255,255,255,.15);overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--d),var(--c));border-radius:8px}
+.live{display:inline-block;width:8px;height:8px;border-radius:50%;background:#4ade80;animation:tw 1.5s infinite;margin-right:6px}.nr .card,.nr .tile{animation:none!important}
+html{scroll-behavior:smooth}nav button{font-size:13px;border-radius:20px;white-space:nowrap}h3{letter-spacing:.3px}
+@keyframes dn{to{transform:translateY(110vh)}}@keyframes spin{to{transform:rotate(360deg) translateY(-30px)}}@keyframes dr{from{transform:translateX(-30vw)}to{transform:translateX(130vw)}}@keyframes dg{to{transform:translate(25vw,-25vh) scale(1.6)}}
+[data-fx="5"] .fx span{background:#fff;animation:dn var(--t) linear infinite}
+[data-fx="6"] .fx span{border-radius:6px;animation:spin var(--t) linear infinite}
+[data-fx="7"] .fx span{width:140px!important;height:3px!important;border-radius:3px;animation:dr calc(var(--t)/3) linear infinite}
+[data-fx="8"] .fx span{background:none;border:3px dotted var(--d);animation:spin var(--t) linear infinite}
+[data-fx="9"] .fx span{filter:blur(25px);animation:dg var(--t) ease-in-out infinite alternate}
+@keyframes fl{to{transform:translate(40px,-50px);opacity:.1}}@keyframes sc{to{transform:translateY(105vh)}}@keyframes lf{to{transform:translate(60px,110vh) rotate(540deg)}}@keyframes br{50%{transform:scale(1.9);opacity:.45}}@keyframes wp{from{transform:scale(0);opacity:1}to{transform:translate(var(--x),var(--y)) scale(1.5);opacity:0}}
+[data-fx="10"] .fx span{background:#fde047;box-shadow:0 0 14px 4px #fde047;animation:fl var(--t) ease-in-out infinite alternate}
+[data-fx="11"] .fx span{width:100%!important;height:2px!important;left:0!important;top:-5%!important;border-radius:0;opacity:.18;animation:sc var(--t) linear infinite}
+[data-fx="12"] .fx span{border-radius:0 80% 0 80%;animation:lf var(--t) linear infinite}
+[data-fx="13"] .fx span{filter:blur(30px);animation:br var(--t) ease-in-out infinite}
+[data-fx="14"] .fx span{background:#fff;animation:wp calc(var(--t)/3) ease-in infinite}
+[data-st="1"] .card,[data-st="1"] .tile{background:rgba(0,0,0,.45);border:1.5px solid var(--c);box-shadow:0 0 18px var(--c)}
+[data-st="2"] .card,[data-st="2"] .tile,[data-st="2"] button,[data-st="2"] input{border-radius:2px!important}[data-st="2"] .card{border:1px solid var(--c);background:rgba(0,0,0,.55)}
+[data-st="3"] .card,[data-st="3"] .tile{border-radius:30px;padding:18px}[data-st="3"] button{border-radius:30px}
+[data-st="4"] .card{background:linear-gradient(145deg,rgba(255,255,255,.2),rgba(255,255,255,.05));border-color:rgba(255,255,255,.35)}
+[data-ly="1"] .card{padding:8px;margin:5px 0}body[data-ly="1"]{font-size:13px}[data-ly="2"] .card{padding:22px;margin:16px 0}
+[data-ly="3"] .card{border-left:5px solid var(--c)}
+[data-ly="4"] nav{left:10px;right:10px;bottom:10px;border-radius:26px}
+[data-ly="5"] nav{top:0;bottom:auto;padding:calc(8px + env(safe-area-inset-top,0px)) 8px 8px}[data-ly="5"] #app{padding-top:70px}
+[data-ly="6"] .card,[data-ly="6"] .tile{backdrop-filter:none;box-shadow:none!important;border-radius:8px;background:rgba(255,255,255,.06)}
+[data-ly="7"] button,[data-ly="7"] input,[data-ly="7"] select,[data-ly="7"] textarea{padding:15px;font-size:17px}
+[data-ly="8"] #app{text-align:center}
+[data-ly="9"] .card{box-shadow:0 0 26px var(--c)}
+body[data-calm="1"] button::after{display:none}body[data-calm="1"] h1{animation:none}body[data-calm="1"] .card,body[data-calm="1"] .tile{box-shadow:none!important}body[data-calm="1"] .fx{opacity:.3}body[data-calm="1"] button:not(.g){background:var(--d);color:#111}
+[data-ly="10"] .card{background:transparent;border:1px solid rgba(255,255,255,.35);backdrop-filter:none}[data-ly="11"] .card{background:rgba(255,255,255,.14);border:0}[data-ly="12"] .card,[data-ly="12"] .tile{border-radius:34px}[data-ly="12"] button{border-radius:30px}[data-ly="13"] .card{border-top:4px solid var(--c)}body[data-ly="14"]{font-size:17px}
+body{animation:none!important;background-size:100% 100%}
+.card,.tile{backdrop-filter:none!important;animation:none;transition:none}body.go .card,body.go .tile{animation:pop .35s both}
+.fx span{will-change:transform;filter:none!important}
+[data-fx="0"] .fx span,[data-fx="1"] .fx span,[data-fx="3"] .fx span,[data-fx="9"] .fx span,[data-fx="13"] .fx span{background:radial-gradient(circle,var(--c),transparent 70%)}
+@media(hover:none){.card:hover{transform:none}}
+@media(prefers-reduced-motion:reduce){.fx{display:none}*{animation-duration:.01s!important}}
+.fx{view-transition-name:fx}nav{view-transition-name:nav}
+::view-transition-old(root){animation:vout .16s ease both}::view-transition-new(root){animation:vin .32s cubic-bezier(.2,.8,.2,1) both}
+::view-transition-old(fx){display:none}::view-transition-new(fx){animation:none}::view-transition-old(nav),::view-transition-new(nav){animation-duration:.2s}
+@keyframes vin{from{opacity:0}}@keyframes vout{to{opacity:0}}
+body.vt .card,body.vt .tile{animation:none!important}
+body.go .bar i{animation:grow .9s cubic-bezier(.2,.8,.2,1) both;transform-origin:left}@keyframes grow{from{transform:scaleX(0)}}
+#app>h3{font-size:21px;margin:18px 4px 6px!important}.card{margin:12px 0}
+.card>h3:first-child{display:flex;align-items:center;gap:8px;margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.12)}
+.card>h3:first-child::before{content:"";width:4px;height:16px;border-radius:4px;background:var(--c)}
+.card .card{background:rgba(255,255,255,.05);box-shadow:none;margin:10px 0}
+.card>div:not(.grid):not(.row):not(.bar):not(.card):not([data-q]){padding:9px 0;border-bottom:1px solid rgba(255,255,255,.08)}.card>div:last-child{border-bottom:0}
+.row{gap:10px}.card>button{margin-top:10px}
+button,nav button{transition:transform .18s,filter .2s,background .25s,color .25s}button:hover{filter:brightness(1.08)}
+input,select,textarea{transition:border-color .2s,box-shadow .2s}input:focus,select:focus,textarea:focus{outline:none;border-color:var(--c);box-shadow:0 0 0 3px rgba(255,255,255,.12)}
+.sheet{position:fixed;left:10px;right:10px;bottom:76px;z-index:9;max-height:62vh;overflow:auto;border-radius:20px;padding:14px;background:rgba(10,10,20,.92);border:1px solid rgba(255,255,255,.18);animation:sup .28s cubic-bezier(.2,.8,.2,1) both}@keyframes sup{from{transform:translateY(24px);opacity:0}}
+.sheet h4{margin:10px 2px 6px;font-size:12px;letter-spacing:1px;text-transform:uppercase;opacity:.65}.sheet .tile{text-align:center;cursor:pointer;padding:10px}

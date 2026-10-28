@@ -1,0 +1,21 @@
+function theme(){const t=TH[db.set.auto?new Date().getDate()%TH.length:db.set.theme]||TH[0],r=document.documentElement.style;["a","b","c","d"].forEach((k,i)=>r.setProperty("--"+k,t[i+1]));document.body.dataset.fx=t[5];document.body.dataset.calm=db.set.calm===0?0:1;document.body.dataset.ly=db.set.ly||0;document.body.dataset.st=t[6]||0;document.body.style.fontFamily=t[6]==2?"ui-monospace,Menlo,monospace":["Georgia,serif","system-ui,sans-serif","'Trebuchet MS',sans-serif","Palatino,serif","Verdana,sans-serif"][db.set.theme%5];let h="";if(window._tk===t[0]+t[5])return;window._tk=t[0]+t[5];for(let i=0;i<9;i++){const z=[2,10,14].includes(t[5])?5:t[5]==5?6+Math.random()*8:20+Math.random()*60;h+=`<span style="left:${t[5]==14?50:Math.random()*100}%;top:${t[5]==0?100:t[5]==5||t[5]==12?-5:t[5]==14?50:Math.random()*100}%;width:${z}px;height:${z}px;--t:${8+Math.random()*10}s;--x:${(Math.random()-.5)*120}vw;--y:${(Math.random()-.5)*120}vh;animation-delay:-${Math.random()*10}s"></span>`}document.getElementById("fx").innerHTML=h}
+function prog(id){let p=0,n=0;for(const k in db.att)if(k.endsWith("|"+id)){n++;p+=db.att[k]}
+let h=[];db.hw.forEach(w=>{const s=w.sub?.[id];if(s&&s.score!=null)h.push(s.score/w.max*100)});
+let t=[];db.tests.forEach(x=>{if(x.res?.[id]!=null)t.push(x.res[id]/x.qs.length*100)});
+const av=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length)+"%":"–";
+const due=db.fees.filter(f=>f.sid==id&&!f.paid).reduce((s,f)=>s+f.amt,0);
+return{att:n?Math.round(p/n*100)+"%":"–",hw:av(h),test:av(t),due}}
+function myBatches(id){return db.batches.filter(b=>b.sids.includes(id))}
+function login(){const id=cl(v("lid")),r=S.lr;let u=null;
+if(r=="admin"&&id=="1888")u={id:"1888",name:"Admin"};
+if(r=="teacher")u=db.teachers.find(t=>t.id==id);
+if(r=="student")u=db.students.find(t=>t.id==id);
+if(r=="parent")u=db.students.find(t=>t.id==id||t.pp==id);
+if(!u){S.msg="Invalid ID";return R()}S.r=r;S.u=u;S.t=0;S.msg="";R()}
+function R(){document.startViewTransition&&document.body.classList.contains("vt")?document.startViewTransition(()=>R0()):R0()}
+function R0(){const a=document.getElementById("app");theme();if(S._k!==S.r+S.t){S._k=S.r+S.t;document.body.classList.add("go");clearTimeout(S._g);S._g=setTimeout(()=>document.body.classList.remove("go"),450)}try{S.r?localStorage.setItem("sga_s",JSON.stringify({r:S.r,id:S.u.id,t:S.t})):localStorage.removeItem("sga_s")}catch(x){}
+if(!S.r){a.innerHTML=`<div style="text-align:center;margin-top:40px"><h1 style="font-size:44px">✦ SG Astra</h1><p class="mut">Smart learning, beautifully connected</p></div><div class="card"><div class="row">${["student","teacher","parent","admin"].map(x=>`<button class="${S.lr==x?"":"g"}" onclick="S.lr='${x}';R()">${x[0].toUpperCase()+x.slice(1)}</button>`).join("")}</div>
+<input id="lid" placeholder="${S.lr=="parent"?"Child’s Student ID or parent phone (no password)":"Your unique ID"}" onkeydown="if(event.key=='Enter')login()"><button style="width:100%" onclick="login()">Enter SG Astra</button><small style="color:#fca5a5">${S.msg}</small><p class="mut" style="text-align:center"><small>${ROLEHINT[S.lr]}</small></p></div>`;return}
+const T=TABS[S.r][S.t];
+a.innerHTML=`<div class="row" style="justify-content:space-between"><h1>✦ SG Astra</h1><div style="flex:0">${bell()}<span class="tag">${S.r}: ${e(S.u.name)}</span> <button class="g" onclick="S.r=null;R()">Exit</button></div></div>${S.last?`<small class="mut">👋 Last visit: ${e(S.last)}</small>`:""}${S.msg?`<div class="card">${S.msg}</div>`:""}<h3 style="margin:12px 4px 0">${IC[T]||""} ${T}</h3>${V(T)}${S.menu?menu2():""}<nav><button class="${S.menu?"on":""}" onclick="S.menu=!S.menu;R()">☰ Menu</button>${TABS[S.r].map((x,i)=>`<button class="${i==S.t?"on":""}" onclick="S.t=${i};S.msg='';S.menu=0;R();scrollTo({top:0,behavior:'smooth'})">${IC[x]||""} ${x}</button>`).join("")}</nav>`;
+document.querySelectorAll("[data-q]").forEach(el=>{try{new QRCode(el,{text:el.dataset.q,width:150,height:150})}catch(x){el.textContent=el.dataset.q}})}
