@@ -38,7 +38,7 @@ if(S.r=="admin")db.teachers.filter(t=>(t.name+t.id).toLowerCase().includes(q)).f
 db.lib.filter(l=>(l.t+l.cls+l.ty).toLowerCase().includes(q)).forEach(l=>m.push(`📚 ${e(l.t)} <span class="tag">${e(l.cls)}</span>`));
 o.innerHTML=m.map(x=>`<div class="card">${x}</div>`).join("")||"<small class='mut'>No matches.</small>"}
 Object.assign(IC,{Search:"🔍",Events:"⏰",Automation:"⚙️"});
-const LY=["Comfort","Compact","Spacious","Accent bars","Floating dock","Top tabs","Flat minimal","Big touch","Centered","Glow cards","Outlined","Soft paper","Rounded XL","Top accent","Large type"];
+const LY=["Comfort","Compact","Spacious","Accent bars","Floating dock","Top tabs","Flat minimal","Big touch","Centered","Glow cards","Outlined","Soft paper","Rounded XL","Top accent","Large type","VIP Lounge","Executive","Crystal panes","Gold trim","Magazine"];
 async function rev(t){let qs;try{const r=await ai(`Create 5 MCQ revision questions on "${t}". Reply ONLY with a JSON array [{"q":"..","o":["A","B","C","D"],"a":0}]`);qs=JSON.parse(r.match(/\[[\s\S]*\]/)[0])}catch(x){S.msg="AI is not set up yet. Ask your admin to add the OpenRouter key.";return R()}db.tests.push({id:uid(),bid:"",only:S.u.id,title:"🔁 Revision: "+t,qs,res:{}});sv();S.msg="Revision test added to your Tests page";R()}
 function auto(){const D=db,ad=S.r=="admin",ss=ad?D.students:D.students.filter(s=>D.batches.some(b=>b.tid==S.u.id&&b.sids.includes(s.id)));
 const card=(h,a)=>`<div class="card"><h3>${h}</h3>${a.length?a.join(""):"<small class='mut'>✅ Nothing pending</small>"}</div>`,btn=(l,p,m)=>`<div class="row"><span>${l}</span><button style="flex:0" onclick="wa('${String(p).replace(/\D/g,"")}',this.dataset.m)" data-m="${e(m)}">Send</button></div>`;
