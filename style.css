@@ -92,3 +92,27 @@ body[data-calm="1"][data-st="6"] button:not(.g){background:linear-gradient(90deg
 [data-ly="17"] .card{background:linear-gradient(145deg,rgba(255,255,255,.18),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.5)}
 [data-ly="18"] .card{border:1px solid var(--d);box-shadow:0 0 0 3px rgba(255,255,255,.05)}[data-ly="18"] .card>h3:first-child::before{background:var(--d)}
 [data-ly="19"] #app>h3{font-size:28px!important}[data-ly="19"] .card{padding:24px}[data-ly="19"] .tile b{font-size:34px}
+.mb{display:none}.side,.sbk{display:none}
+[data-ly="20"] .mb,[data-ly="21"] .mb,[data-ly="22"] .mb{display:inline-block}
+[data-ly="20"] nav,[data-ly="21"] nav,[data-ly="22"] nav{display:none}
+[data-ly="20"] .side,[data-ly="21"] .side,[data-ly="22"] .side{display:block;position:fixed;top:0;bottom:0;left:0;width:290px;max-width:84vw;z-index:20;overflow-y:auto;padding:calc(18px + env(safe-area-inset-top,0px)) 14px 24px;transform:translateX(-105%);background:rgba(10,10,24,.96)}
+.side.open{transform:none;animation:slin .32s cubic-bezier(.2,.8,.2,1)}@keyframes slin{from{transform:translateX(-105%)}}
+[data-ly="20"] .sbk.on,[data-ly="21"] .sbk.on,[data-ly="22"] .sbk.on{display:block;position:fixed;inset:0;z-index:19;background:rgba(0,0,0,.55)}
+.sb-brand{font-size:22px;font-weight:700;margin-bottom:6px;color:var(--d)}.sb-user{opacity:.85;margin-bottom:8px}
+.side h4{margin:16px 6px 6px;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;opacity:.6}
+.sb-i{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;cursor:pointer;margin:2px 0}.sb-i span{width:24px;text-align:center}.sb-i.on{background:rgba(255,255,255,.14)}
+[data-ly="20"] .side{width:310px;padding-top:calc(30px + env(safe-area-inset-top,0px));border-right:1px solid rgba(255,255,255,.1)}[data-ly="20"] .sb-i{padding:15px 16px;margin:5px 0;font-size:16px}
+[data-ly="21"] .side{background:linear-gradient(180deg,rgba(40,20,80,.97),rgba(6,8,20,.97));background:linear-gradient(180deg,color-mix(in srgb,var(--b) 85%,#000),var(--a));box-shadow:8px 0 40px rgba(0,0,0,.5);border-right:1px solid var(--c)}
+[data-ly="21"] .sb-i.on{background:linear-gradient(90deg,var(--c),var(--d));color:#111;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+[data-ly="22"] .side{width:240px;font-family:Georgia,'Times New Roman',serif;background:rgba(6,8,16,.97);border-right:1px solid rgba(255,255,255,.12)}
+[data-ly="22"] .sb-i{border-radius:0;padding:11px 8px;border-bottom:1px solid rgba(255,255,255,.06)}[data-ly="22"] .sb-i.on{background:none;border-left:3px solid var(--c);color:var(--d)}[data-ly="22"] .sb-brand{letter-spacing:3px;font-size:18px;text-transform:uppercase}
+body[data-calm="1"] .fx:has(canvas){opacity:.8}
+@media(min-width:900px){[data-ly="20"] .side,[data-ly="21"] .side,[data-ly="22"] .side{transform:none;animation:none}[data-ly="20"] #app{margin-left:330px}[data-ly="21"] #app{margin-left:310px}[data-ly="22"] #app{margin-left:260px}[data-ly="20"] #app,[data-ly="21"] #app,[data-ly="22"] #app{margin-right:auto;max-width:900px}.mb{display:none!important}.sbk.on{display:none!important}}
+.big{font-size:28px;font-weight:700;line-height:1.25}
+button.opt{display:block;width:100%;text-align:left;margin:8px 0;padding:14px;border-radius:14px;border:2px solid rgba(255,255,255,.22);font-size:16px}
+button.opt.good{border-color:#4ade80;background:rgba(74,222,128,.25)}button.opt.bad{border-color:#f87171;background:rgba(248,113,113,.25)}
+.node{padding:12px;margin:10px 0;border-radius:18px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14)}.node.lock{opacity:.5}
+.nc{flex:0 0 52px;min-width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;background:linear-gradient(135deg,var(--c),var(--d))}
+.fb.good{border-color:#4ade80}.fb.bad{border-color:#f87171}
+.labcard{background:linear-gradient(135deg,rgba(34,211,238,.22),rgba(236,72,153,.22));border:1px solid rgba(255,255,255,.4)}
+.bub{padding:10px 12px;margin:8px 0;border-radius:14px;max-width:90%}.bub.user{background:rgba(255,255,255,.16);margin-left:auto}.bub.ai{background:rgba(0,0,0,.35)}
