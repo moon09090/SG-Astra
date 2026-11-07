@@ -12,11 +12,14 @@ Coaching-institute app for admin, teachers, students and parents.
 
 Every new run raises the version number automatically, so each `.aab` can be uploaded as an update.
 
-## SG Language Lab (AI teacher)
-A separate world panel on the login screen. An AI teacher builds a zero-to-hero roadmap (A0 to C2) for any language, teaches each lesson, chats with you and speaks out loud. The 11 built-in offline courses, practice and the pronunciation lab are still inside. It needs an OpenRouter key (Profile); progress stays on the device.
+## Admin-only controls
+Only the admin (ID 1888) can change themes, layouts, the AI key and the Python engine mode. To give **every phone** the AI key, add the repository secret `OPENROUTER_API_KEY` (optional variables: `SGA_MODEL`, `SGA_THEME`, `SGA_LAYOUT`) before building. The key is baked into the app, so use a key with a spending limit.
 
-## Line Python Lab
-A second world panel: a code editor with highlighting, real Python 3 (Pyodide, bundled in the app), input support, files, 8 lessons and an AI assistant (Explain, Fix, Improve, Ask).
+## Panels for everyone
+- **Language Academy** — learn any language from the alphabet up: sounds, 24 vocabulary topics, 16 grammar lessons, 14 phrase situations, dictionary, practice, voice output.
+- **Line Python Lab** — big code editor, operator keyboard, full-screen output, real Python 3 offline.
+- **Study Hub** — 100+ tools (timers, trackers, calculators, converters, reference sheets, AI study helpers, goals, notes, flashcards).
+- **AI helper** — the 🤖 button in every panel answers doubts.
 
 ## First run
 Open the app → **Admin** → ID `1888`. Add teachers and students (you choose each person’s unique ID), set your UPI ID, then share the IDs. Teachers create batches, homework and tests; parents log in with their child’s student ID.

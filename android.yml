@@ -15,6 +15,10 @@ jobs:
       KS_PASS: ${{ secrets.KEYSTORE_PASSWORD }}
       KS_PATH: ${{ github.workspace }}/upload-keystore.jks
       VC: ${{ github.run_number }}
+      SGA_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      SGA_MODEL: ${{ vars.SGA_MODEL }}
+      SGA_THEME: ${{ vars.SGA_THEME }}
+      SGA_LAYOUT: ${{ vars.SGA_LAYOUT }}
     steps:
       - uses: actions/checkout@v4
       - name: Check the secret exists
@@ -28,6 +32,9 @@ jobs:
           distribution: temurin
           java-version: 21
       - run: npm install
+      - name: Write app settings
+        run: |
+          printf 'window.SGA_CONFIG=%s;\n' "$(jq -nc --arg k "$SGA_KEY" --arg m "$SGA_MODEL" --argjson t "${SGA_THEME:-0}" --argjson l "${SGA_LAYOUT:-0}" '{key:$k,model:$m,theme:$t,layout:$l}')" > config.js
       - name: Collect web files
         run: |
           mkdir www assets

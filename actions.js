@@ -7,7 +7,7 @@ function addHW(){if(!v("h2")||!v("h1"))return;db.hw.push({id:uid(),bid:v("h1"),t
 function score(w,s,x){const h=db.hw.find(q=>q.id==w);h.sub[s]=Object.assign(h.sub[s]||{},{score:+x});sv()}
 function done(w){const h=db.hw.find(q=>q.id==w);h.sub=h.sub||{};h.sub[S.u.id]=Object.assign(h.sub[S.u.id]||{},{done:1});sv();R()}
 function manual(){const qs=v("m3").split("\n").map(l=>l.split("|").map(x=>x.trim())).filter(p=>p.length>=6).map(p=>({q:p[0],o:p.slice(1,5),a:(+p[5]||1)-1}));if(!qs.length||!v("m1")){S.msg="Use the format: Question|A|B|C|D|1-4";return R()}db.tests.push({id:uid(),bid:v("m1"),title:v("m2")||"Test",qs,res:{}});sv();S.msg="Test published";R()}
-async function ai(p){if(!db.set.key)throw 0;const r=await fetch("https://openrouter.ai/api/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+db.set.key},body:JSON.stringify({model:db.set.model,messages:[{role:"user",content:p}]})});const j=await r.json();return j.choices[0].message.content}
+async function ai(p){return aiChat([{role:"user",content:p}])}
 async function gen(){const c=v("g2"),s=v("g3"),ch=v("g4"),l=v("g5"),n=+v("g6")||5,ty=v("g7"),b=v("g1");let qs,note="AI generated";
 try{const t=await ai(`Create ${n} ${ty} questions for Class ${c} ${s}, chapter "${ch}", level ${l}. Reply ONLY with a JSON array: [{"q":"...","o":["A","B","C","D"],"a":0}] where a is the correct option index. For Assertion-Reason use the standard 4 options; for Case Study embed the case text in q.`);qs=JSON.parse(t.match(/\[[\s\S]*\]/)[0])}catch(x){S.msg="AI could not generate questions. Ask the admin to check the OpenRouter key and model under AI, or create the test manually.";return R()}
 S.gen={qs,bid:b,title:`${s} · ${ch} (${l})`,note};R()}
