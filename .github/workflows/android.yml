@@ -40,6 +40,12 @@ jobs:
       - name: Make launcher icons
         continue-on-error: true
         run: npx --yes @capacitor/assets generate --android --iconBackgroundColor '#0e1746' --iconBackgroundColorDark '#0e1746'
+      - name: Fix icon background
+        run: |
+          RES=android/app/src/main/res
+          mkdir -p $RES/values
+          printf '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n  <color name="ic_launcher_background">#0e1746</color>\n</resources>\n' > $RES/values/ic_launcher_background.xml
+          sed -i 's#@mipmap/ic_launcher_background#@color/ic_launcher_background#g' $RES/mipmap-anydpi-v26/ic_launcher.xml $RES/mipmap-anydpi-v26/ic_launcher_round.xml
       - run: npx cap sync android
       - name: Create the upload key (first run only)
         run: |
