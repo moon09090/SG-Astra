@@ -17,7 +17,7 @@ return`<div class="card"><h3>🚀 Getting started · ${n}/${st.length}</h3><div 
 
 
 
-const NS=["rail","side","dock","rail","side","rail"],LY=["Gorgeous Spacious","Grand Sidebar","Floating Dock","Timeline","Boutique","Studio Split"];
+const NS=["rail","side","dock","rail","side","rail","rail","rail","side","rail","rail","side"],LY=["Gorgeous Spacious","Grand Sidebar","Floating Dock","Timeline","Boutique","Studio Split","Magazine Columns","Compact Pro","Zen Focus","Glass Island","Story Scroll","Command Center"];
 const TTL={lang:"🌍 Language Academy",py:"💻 Line Python Lab",hub:"🎯 Study Hub"};
 const GO=["Overview","Code","Teaching","Learning","People","Manage","Schedule","Communication","Money","Settings"];
 Object.assign(GR,{Teacher:"Learning",Learn:"Learning",Practice:"Learning",Speak:"Learning",Phrasebook:"Learning",Profile:"Settings",Editor:"Code",Files:"Code",Lessons:"Learning",Assistant:"Learning",Settings:"Settings"});
@@ -30,5 +30,5 @@ return`<div class="vrail ${st}">${T.map((x,i)=>`<div class="vi ${i==S.t?"on":""}
 function curLy(){const v=db.set.lset?db.set.ly:((window.SGA_CONFIG&&SGA_CONFIG.layout)||0);return v>=0&&v<NS.length?v:0}
 function admLy(i){db.set.ly=i;db.set.lset=1;sv();R()}
 function admAI(){db.set.key=v("k1");db.set.model=v("k3")||v("k2");db.set.pyOnline=v("k4")=="1";db.set.pyTimeout=Math.max(5,+v("k5")||30);sv();S.msg="Saved ✅";R()}
-Object.assign(GR,{Start:"Learning",Alphabet:"Learning",Vocabulary:"Learning",Grammar:"Learning",Phrases:"Learning",Dictionary:"Learning",Progress:"Overview",Today:"Overview",Tools:"Learning",Goals:"Learning",Notes:"Learning",Cards:"Learning",Toolkit:"Learning"});
-Object.assign(IC,{Start:"🧭",Alphabet:"🔤",Vocabulary:"📚",Grammar:"📐",Phrases:"💬",Dictionary:"📖",Today:"🌞",Tools:"🧰",Goals:"🎯",Notes:"🗒️",Cards:"🃏",Toolkit:"🧰"});
+Object.assign(GR,{Start:"Learning",Alphabet:"Learning",Vocabulary:"Learning",Grammar:"Learning",Phrases:"Learning",Dictionary:"Learning",Progress:"Overview",Today:"Overview",Tools:"Learning",Goals:"Learning",Notes:"Learning",Cards:"Learning",Toolkit:"Learning",Zones:"Learning",Routine:"Learning",Challenges:"Code",Snippets:"Code",Reading:"Learning"});
+Object.assign(IC,{Start:"🧭",Alphabet:"🔤",Vocabulary:"📚",Grammar:"📐",Phrases:"💬",Dictionary:"📖",Today:"🌞",Tools:"🧰",Goals:"🎯",Notes:"🗒️",Cards:"🃏",Toolkit:"🧰",Zones:"🧰",Routine:"⏰",Challenges:"🏆",Snippets:"🧩",Reading:"📖"});

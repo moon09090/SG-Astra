@@ -42,13 +42,15 @@ jobs:
           cp manifest.webmanifest icon.svg icon-192.png icon-512.png www/ || true
           mkdir -p www/pyodide
           for f in pyodide.js pyodide.asm.js pyodide.asm.wasm python_stdlib.zip pyodide-lock.json; do cp node_modules/pyodide/$f www/pyodide/ || true; done
-          if [ -f icon-1024.png ]; then cp icon-1024.png assets/icon-only.png; cp icon-1024.png assets/icon-foreground.png; fi
+          cp icon-1024.png assets/icon-only.png
+          cp icon-fg-1024.png assets/icon-foreground.png
+          cp icon-bg-1024.png assets/icon-background.png
       - run: npx cap add android
       - name: Allow the microphone
         run: sed -i 's#<application#<uses-permission android:name="android.permission.RECORD_AUDIO" />\n    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />\n    <application#' android/app/src/main/AndroidManifest.xml
       - name: Make launcher icons
         continue-on-error: true
-        run: npx --yes @capacitor/assets generate --android --iconBackgroundColor '#0e1746' --iconBackgroundColorDark '#0e1746'
+        run: npx --yes @capacitor/assets generate --android
       - run: npx cap sync android
       - name: Create the upload key (first run only)
         run: |

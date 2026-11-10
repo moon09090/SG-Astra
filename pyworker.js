@@ -13,7 +13,7 @@ self.onmessage = async ev => {
     } catch (e) { postMessage({ t: "fail", s: String(e) }); }
   } else if (m.type === "run") {
     queue = (m.stdin || []).filter((x, i, a) => x !== "" || i < a.length - 1);
-    py.setStdin({ stdin: () => { if (!queue.length) return undefined; const s = queue.shift(); postMessage({ t: "out", s: s + "\n" }); return s; } });
+    py.setStdin({ stdin: () => { if (!queue.length) return undefined; const s = queue.shift(); if (m.echo !== false) postMessage({ t: "out", s: s + "\n" }); return s; } });
     try {
       if (m.online) await py.loadPackagesFromImports(m.code);
       const g = py.globals.get("dict")();

@@ -16,10 +16,13 @@ Every new run raises the version number automatically, so each `.aab` can be upl
 Only the admin (ID 1888) can change themes, layouts, the AI key and the Python engine mode. To give **every phone** the AI key, add the repository secret `OPENROUTER_API_KEY` (optional variables: `SGA_MODEL`, `SGA_THEME`, `SGA_LAYOUT`) before building. The key is baked into the app, so use a key with a spending limit.
 
 ## Panels for everyone
-- **Language Academy** — learn any language from the alphabet up: sounds, 24 vocabulary topics, 16 grammar lessons, 14 phrase situations, dictionary, practice, voice output.
-- **Line Python Lab** — big code editor, operator keyboard, full-screen output, real Python 3 offline.
-- **Study Hub** — 100+ tools (timers, trackers, calculators, converters, reference sheets, AI study helpers, goals, notes, flashcards).
+- **Language Academy** — any language from the alphabet up: sounds, 24 vocabulary topics, 16 grammar lessons, 14 phrase situations, graded reading, dictionary, flashcards, quizzes, dictation and voice output.
+- **Line Python Lab** — big editor with an operator keyboard, full-screen output, 13 auto-tested coding challenges, 22 code snippets, lessons, real Python 3 offline.
+- **Study Hub** — 220+ tools in 12 zones (Focus, Plan & Track, Learn & Revise, Creativity Studio, Imagination Lab, Routine & Habits, Mind & Wellbeing, Brain Games, Calculators, Reference, AI Helpers, Career & Money), plus a daily dashboard, routine builder, goals, notes and flashcards.
 - **AI helper** — the 🤖 button in every panel answers doubts.
+
+## Look and feel
+56 themes (luxurious, elegant, simple, creative, some gently animated) and 12 vertical layouts. Only the admin can change them.
 
 ## First run
 Open the app → **Admin** → ID `1888`. Add teachers and students (you choose each person’s unique ID), set your UPI ID, then share the IDs. Teachers create batches, homework and tests; parents log in with their child’s student ID.

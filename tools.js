@@ -1,12 +1,14 @@
 // Study Hub tools: trackers, timers, calculators, converters and reference sheets.
 const HT=[],HCF={},HTM={};
+const Z={foc:"🎯 Focus & Time",pln:"🗓️ Plan & Track",lrn:"🧠 Learn & Revise",cre:"🎨 Creativity Studio",img:"🌈 Imagination Lab",rut:"⏰ Routine & Habits",mnd:"🌿 Mind & Wellbeing",gam:"🎮 Brain Games",cal:"🧮 Calculators & Converters",ref:"📚 Reference & Skills",ai:"🤖 AI Study Helpers",car:"💼 Career & Money"};
 const hadd=(g,id,ic,n,r)=>HT.push({g,id,ic,n,r});
 let HB={};try{HB=JSON.parse(localStorage.getItem("sga_hub"))||{}}catch(x){}
+function hxp(n){HB.xp=(HB.xp||0)+n;const d=today();HB.days=HB.days||[];if(!HB.days.includes(d)){HB.days.push(d);if(HB.days.length>400)HB.days.shift()}hsv()}
 const hsv=()=>{try{localStorage.setItem("sga_hub",JSON.stringify(HB))}catch(x){}},hl=k=>HB[k]||(HB[k]=[]);
 const hres=id=>S.hr&&S.hr.id==id?`<div class="card fb good" style="white-space:pre-wrap">${S.hr.t}</div>`:"";
 // ---- trackers (one generic engine) ----
 function logTool(g,id,ic,n,f,sum){hadd(g,id,ic,n,()=>{const L=hl("log_"+id);return`<div class="card"><h3>${ic} ${n}</h3>${f.map((x,i)=>`<input id="lg${i}" type="${x[1]||"text"}" step="any" placeholder="${x[0]}">`).join("")}<button onclick="HlogAdd('${id}',${f.length})">Add</button></div>${sum?`<div class="card"><b>${sum(L)}</b></div>`:""}<div class="card">${L.slice().reverse().map((x,i)=>`<div class="row nw"><div style="flex:4"><small class="mut">${x.d}</small> ${x.v.map(e).join(" · ")}</div><button class="g sq" onclick="HlogDel('${id}',${L.length-1-i})">🗑</button></div>`).join("")||"<small class='mut'>Nothing yet.</small>"}</div>`})}
-function HlogAdd(id,n){const a=[];for(let i=0;i<n;i++)a.push(v("lg"+i));if(!a[0])return;hl("log_"+id).push({d:today(),v:a});hsv();R()}
+function HlogAdd(id,n){const a=[];for(let i=0;i<n;i++)a.push(v("lg"+i));if(!a[0])return;hl("log_"+id).push({d:today(),v:a});hxp(3);R()}
 function HlogDel(id,i){hl("log_"+id).splice(i,1);hsv();R()}
 const tot=(L,i,u)=>"Total: "+Math.round(L.reduce((a,x)=>a+(+x.v[i]||0),0)*100)/100+" "+u;
 const G1="Planning & Tracking",G2="Wellness & Life",G3="Career & Money";
@@ -31,7 +33,7 @@ logTool(G3,"apply","🏫","College applications",[["College / course"],["Status"
 // ---- timers ----
 const Hfmt=s=>String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
 function timerTool(id,ic,n,min){hadd("Focus & Time",id,ic,n,()=>`<div class="card" style="text-align:center"><h3>${ic} ${n}</h3><div class="big" id="tm_${id}" style="font-size:56px">${Hfmt(HTM[id]?HTM[id].left:min*60)}</div><div class="chips" style="justify-content:center"><button onclick="Htstart('${id}',${min})">${HTM[id]&&HTM[id].run?"⏸ Pause":"▶ Start"}</button><button class="g" onclick="Htreset('${id}',${min})">Reset</button></div></div>`)}
-function Htstart(id,min){const T=HTM[id]=HTM[id]||{left:min*60,run:0};if(T.run){clearInterval(T.iv);T.run=0}else{T.run=1;T.iv=setInterval(()=>{T.left--;const el=document.getElementById("tm_"+id);if(el)el.textContent=Hfmt(Math.max(0,T.left));if(T.left<=0){clearInterval(T.iv);T.run=0;try{navigator.vibrate&&navigator.vibrate([300,100,300])}catch(x){}speak("Time is up","en-US",1);S.msg="⏰ Time’s up!";R()}},1000)}R()}
+function Htstart(id,min){const T=HTM[id]=HTM[id]||{left:min*60,run:0};if(T.run){clearInterval(T.iv);T.run=0}else{T.run=1;T.iv=setInterval(()=>{T.left--;const el=document.getElementById("tm_"+id);if(el)el.textContent=Hfmt(Math.max(0,T.left));if(T.left<=0){clearInterval(T.iv);T.run=0;try{navigator.vibrate&&navigator.vibrate([300,100,300])}catch(x){}speak("Time is up","en-US",1);hxp(10);S.msg="⏰ Time’s up!";R()}},1000)}R()}
 function Htreset(id,min){if(HTM[id])clearInterval(HTM[id].iv);HTM[id]={left:min*60,run:0};R()}
 [["pomo","🍅","Pomodoro (25 min)",25],["deep","🎯","Deep focus (50 min)",50],["brk","☕","Short break (5 min)",5],["lbrk","🛋️","Long break (15 min)",15],["eye","👀","20-20-20 eye rest",20]].forEach(x=>timerTool(x[0],x[1],x[2],x[3]));
 hadd("Focus & Time","count","⏳","Custom countdown",()=>`<div class="card"><h3>⏳ Custom countdown</h3><input id="cm" type="number" placeholder="Minutes" value="${S.cmv||10}"><button onclick="S.cmv=+v('cm')||10;HTM.cust={left:S.cmv*60,run:0};Htstart('cust',S.cmv)">Start</button><div class="big" id="tm_cust" style="text-align:center;font-size:52px">${Hfmt(HTM.cust?HTM.cust.left:0)}</div></div>`);
@@ -40,7 +42,7 @@ function Hsw(){const T=HTM.sw=HTM.sw||{t:0,run:0};if(T.run){clearInterval(T.iv);
 hadd("Focus & Time","exams","📅","Exam countdown",()=>{const L=hl("exams");return`<div class="card"><h3>📅 Exam countdown</h3><input id="ex1" placeholder="Exam name"><input id="ex2" type="date"><button onclick="if(v('ex1')&&v('ex2')){hl('exams').push({t:v('ex1'),d:v('ex2')});hsv();R()}">Add</button></div><div class="card">${L.map((x,i)=>{const n=Math.ceil((new Date(x.d)-new Date(today()))/864e5);return`<div class="row nw"><b style="flex:3">${e(x.t)}</b><span class="tag">${n>0?n+" days":n==0?"Today":"Done"}</span><button class="g sq" onclick="hl('exams').splice(${i},1);hsv();R()">🗑</button></div>`}).join("")||"<small class='mut'>No exams yet.</small>"}</div>`});
 // ---- calculators ----
 function calc(g,id,ic,n,f,fn,note){hadd(g,id,ic,n,()=>`<div class="card"><h3>${ic} ${n}</h3>${note?`<small class="mut">${note}</small>`:""}${f.map((x,i)=>x[2]?`<textarea id="cf${i}" rows="3" placeholder="${x[0]}"></textarea>`:`<input id="cf${i}" type="${x[1]||"number"}" step="any" placeholder="${x[0]}">`).join("")}<button onclick="Hcalc('${id}')">Calculate</button></div>${hres(id)}`);HCF[id]=[f.length,fn]}
-function Hcalc(id){const [n,fn]=HCF[id],a=[];for(let i=0;i<n;i++)a.push(v("cf"+i));let t;try{t=fn(a,a.map(parseFloat))}catch(x){t="Please check your numbers."}S.hr={id,t:String(t)};R()}
+function Hcalc(id){const [n,fn]=HCF[id],a=[];for(let i=0;i<n;i++)a.push(v("cf"+i));let t;try{t=fn(a,a.map(parseFloat))}catch(x){t="Please check your numbers."}S.hr={id,t:String(t)};hxp(1);R()}
 const r2=x=>Math.round(x*1e4)/1e4,nums=s=>s.split(/[\s,;]+/).map(Number).filter(x=>!isNaN(x)&&x!==0||x===0).filter(x=>!isNaN(x));
 const G4="Calculators";
 const ALLOW=new Set("Math PI E sin cos tan asin acos atan sqrt log log10 abs floor ceil round exp".split(" "));
