@@ -105,6 +105,7 @@ async function enter(t){
 function out(){on=false;reset();try{F().signOut()}catch(e){}}
 
 async function login(role,id,pin){
+ if(!window.FB)throw{code:"fb-missing"};
  busy=true;let email;
  try{if(role=="admin")email=ADMIN;
   else{const d=await F().getDoc(F().doc("loginmap",({student:"s",teacher:"t",parent:"p"})[role]+"_"+id));if(!d.exists())throw{code:"auth/invalid-credential"};email=d.data().e}
@@ -124,8 +125,8 @@ async function revoke(role,id){const key=({student:"s",teacher:"t",parent:"p"})[
  const d=await F().getDoc(F().doc("loginmap",key));if(!d.exists())return;
  await F().deleteDoc(F().doc("roster",d.data().e));await F().deleteDoc(F().doc("loginmap",key))}
 
-const TXT={"auth/invalid-credential":"Wrong ID or PIN","auth/wrong-password":"Wrong ID or PIN","auth/user-not-found":"Wrong ID or PIN","auth/too-many-requests":"Too many tries — wait a few minutes","auth/network-request-failed":"No internet connection","auth/weak-password":"PIN must be at least 6 characters","auth/email-already-in-use":"That account already exists — try again","no-access":"This account has no access","no-profile":"Your profile was removed — ask the admin","permission-denied":"Not allowed"};
-const errText=e=>TXT[e&&e.code]||("Something went wrong"+(e&&e.code?" ("+e.code+")":""));
+const TXT={"fb-missing":"The Firebase part is missing from this app build. Install the APK from the ui-upgrade run (Artifacts) and check that the build step “Add Line IDE” finished.","auth/operation-not-allowed":"Email/Password sign-in is switched off in Firebase (Authentication → Sign-in method).","auth/invalid-api-key":"Firebase rejected the app’s API key.","auth/network-request-failed":"No internet connection (or Firebase is blocked on this network)","auth/invalid-credential":"Wrong ID or PIN","auth/wrong-password":"Wrong ID or PIN","auth/user-not-found":"Wrong ID or PIN","auth/too-many-requests":"Too many tries — wait a few minutes","auth/network-request-failed":"No internet connection","auth/weak-password":"PIN must be at least 6 characters","auth/email-already-in-use":"That account already exists — try again","no-access":"This account has no access","no-profile":"Your profile was removed — ask the admin","permission-denied":"Not allowed"};
+const errText=e=>TXT[e&&e.code]||("Something went wrong: "+((e&&(e.code||e.message))||String(e)).toString().slice(0,140));
 
 function boot(){if(booted||!window.FB)return;booted=true;
  F().onAuth(u=>{if(u&&!S.r&&!on&&!busy){let t=0;try{const m=JSON.parse(localStorage.getItem("sga_s")||"null");if(m)t=m.t||0}catch(e){}
