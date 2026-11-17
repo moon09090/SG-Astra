@@ -7,17 +7,17 @@ function tog(i){const x=db.todo.find(y=>y.id==i);x.d=x.d?0:1;sv();R()}
 function bell(){if(S.r=="lang"||S.r=="py"||S.r=="hub")return"";let s=0;try{s=+localStorage.getItem("sga_seen_"+S.u.id)||0}catch(x){}const n=Math.max(0,db.ann.length-s);return n?`<button onclick="seen()">🔔 ${n}</button>`:""}
 function seen(){try{localStorage.setItem("sga_seen_"+S.u.id,db.ann.length)}catch(x){}S.t=Math.max(0,TABS[S.r].indexOf(S.r=="student"?"Home":"Notice"));R()}
 ["login","addP","addFee","addHW","done","submitT","notice","manual","pub","doubt","ref","addL","addT","addEv","addS","addTodo","rev"].forEach(n=>{const f=window[n];window[n]=function(...a){const r=f.apply(this,a);try{if(n!="login"||S.r){if(n=="login"){S.last=localStorage.getItem("sga_last_"+S.u.id)||"first visit";localStorage.setItem("sga_last_"+S.u.id,new Date().toLocaleString())}logA(n)}}catch(x){}return r}});
-try{const m=JSON.parse(localStorage.getItem("sga_s")||"null");if(m&&m.r){const u=m.r=="lang"?{id:"lang",name:"Learner"}:m.r=="py"?{id:"py",name:"Coder"}:m.r=="hub"?{id:"hub",name:"Student"}:m.r=="admin"?{id:"1888",name:"Admin"}:(m.r=="teacher"?db.teachers:db.students).find(x=>x.id==m.id);if(u){S.r=m.r;S.u=u;S.t=Math.min(m.t||0,TABS[m.r].length-1)}}}catch(x){}
+try{const m=JSON.parse(localStorage.getItem("sga_s")||"null");if(m&&m.r){const u=m.r=="lang"?{id:"lang",name:"Learner"}:m.r=="py"?{id:"py",name:"Coder"}:m.r=="hub"?{id:"hub",name:"Student"}:m.r=="admin"?null:(m.r=="teacher"?db.teachers:db.students).find(x=>x.id==m.id);if(u){S.r=m.r;S.u=u;S.t=Math.min(m.t||0,TABS[m.r].length-1)}}}catch(x){}
 const GR={Home:"Overview",Dashboard:"Overview",Progress:"Overview",Leaders:"Overview",Automation:"Manage",Search:"Manage",Teachers:"People",Students:"People",Batches:"Teaching",Homework:"Teaching",Attend:"Teaching",Tests:"Learning",Doubts:"Learning","Weak Topics":"Learning",Planner:"Learning",Library:"Learning",Timetable:"Schedule",Events:"Schedule",Notice:"Communication",Reports:"Communication",Refer:"Communication",Pay:"Money"};
 if(document.startViewTransition&&!matchMedia("(prefers-reduced-motion: reduce)").matches)setTimeout(()=>document.body.classList.add("vt"),0);
-const ROLEHINT={student:"Enter the ID your institute gave you.",teacher:"Enter your teacher ID from the admin.",parent:"Enter your child’s student ID — no password needed.",admin:"Institute admin access."};
+const ROLEHINT={student:"Enter your ID and the PIN your institute gave you.",teacher:"Enter your teacher ID and PIN from the admin.",parent:"Enter your child’s student ID and the parent PIN.",admin:"Institute admin — enter your PIN."};
 const empty=(i,t,s)=>`<div style="text-align:center;padding:26px 10px"><div style="font-size:38px">${i}</div><b>${t}</b><br><small class="mut">${s}</small></div>`;
 function setup(){const st=[[db.teachers.length>0,"Add your teachers","Teachers"],[db.students.length>0,"Add your students","Students"],[db.batches.length>0,"Teachers create batches",null],[!!db.set.upi,"Set your UPI ID for fees","Pay"],[db.ann.length>0,"Post your first announcement","Notice"]],n=st.filter(x=>x[0]).length;if(n==st.length)return"";
 return`<div class="card"><h3>🚀 Getting started · ${n}/${st.length}</h3><div class="bar"><i style="width:${n/st.length*100}%"></i></div>${st.map(x=>`<div class="row" ${x[2]&&!x[0]?`style="cursor:pointer" onclick="S.t=${TABS.admin.indexOf(x[2])};R()"`:""}><span>${x[0]?"✅":"⬜"} ${x[1]}</span></div>`).join("")}</div>`}
 
 
 
-const NS=["rail","side","dock","rail","side","rail","rail","rail","side","rail","rail","side"],LY=["Gorgeous Spacious","Grand Sidebar","Floating Dock","Timeline","Boutique","Studio Split","Magazine Columns","Compact Pro","Zen Focus","Glass Island","Story Scroll","Command Center"];
+const NS=["rail","side","dock","rail","side","rail","rail","rail","side","rail","rail","side","hdock"],LY=["Gorgeous Spacious","Grand Sidebar","Floating Dock","Timeline","Boutique","Studio Split","Magazine Columns","Compact Pro","Zen Focus","Glass Island","Story Scroll","Command Center","Glass Horizon"];
 const TTL={lang:"🌍 Language Academy",py:"💻 Line Python Lab",hub:"🎯 Study Hub"};
 const GO=["Overview","Code","Teaching","Learning","People","Manage","Schedule","Communication","Money","Settings"];
 Object.assign(GR,{Teacher:"Learning",Learn:"Learning",Practice:"Learning",Speak:"Learning",Phrasebook:"Learning",Profile:"Settings",Editor:"Code",Files:"Code",Lessons:"Learning",Assistant:"Learning",Settings:"Settings"});
@@ -25,9 +25,10 @@ Object.assign(IC,{Teacher:"🧑‍🏫",Editor:"⌨️",Files:"🗂️",Lessons:
 function go(i){S.t=i;S.msg="";S.menu=0;R();scrollTo({top:0,behavior:"smooth"})}
 function sideBar(){const T=TABS[S.r];return`<div class="sbk ${S.menu?"on":""}" onclick="S.menu=0;R()"></div><aside class="side ${S.menu?"open":""}"><div class="sb-brand">${TTL[S.r]||"✦ SG Astra"}</div><div class="sb-user"><span class="tag">${S.r}</span> ${e(S.u.name)}</div>${GO.map(g=>{const L=T.filter(x=>(GR[x]||"Settings")==g);return L.length?`<h4>${g}</h4>${L.map(x=>`<div class="sb-i ${T[S.t]==x?"on":""}" onclick="go(${T.indexOf(x)})"><span>${IC[x]||"•"}</span>${x}</div>`).join("")}`:""}).join("")}<div class="sb-i" onclick="S.r=null;R()"><span>🚪</span>Exit</div></aside>`}
 function vnav(){const T=TABS[S.r],st=NS[curLy()]||"rail";if(st=="side")return sideBar();
+if(st=="hdock")return`<nav class="hdock">${T.map((x,i)=>`<div class="hi ${i==S.t?"on":""}" title="${x}" onclick="go(${i})"><i>${IC[x]||"•"}</i><span>${x}</span></div>`).join("")}</nav>`;
 return`<div class="vrail ${st}">${T.map((x,i)=>`<div class="vi ${i==S.t?"on":""}" title="${x}" onclick="go(${i})"><i>${IC[x]||"•"}</i><span>${x}</span></div>`).join("")}</div>`}
 
-function curLy(){const v=db.set.lset?db.set.ly:((window.SGA_CONFIG&&SGA_CONFIG.layout)||0);return v>=0&&v<NS.length?v:0}
+function curLy(){const c=window.SGA_CONFIG&&SGA_CONFIG.layout,v=db.set.lset?db.set.ly:(c?c:12);return v>=0&&v<NS.length?v:12}
 function admLy(i){db.set.ly=i;db.set.lset=1;sv();R()}
 function admAI(){db.set.key=v("k1");db.set.model=v("k3")||v("k2");db.set.pyOnline=v("k4")=="1";db.set.pyTimeout=Math.max(5,+v("k5")||30);sv();S.msg="Saved ✅";R()}
 Object.assign(GR,{Start:"Learning",Alphabet:"Learning",Vocabulary:"Learning",Grammar:"Learning",Phrases:"Learning",Dictionary:"Learning",Progress:"Overview",Today:"Overview",Tools:"Learning",Goals:"Learning",Notes:"Learning",Cards:"Learning",Toolkit:"Learning",Zones:"Learning",Routine:"Learning",Challenges:"Code",Snippets:"Code",Reading:"Learning"});

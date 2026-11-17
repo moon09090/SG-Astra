@@ -1,6 +1,13 @@
-function addP(k){const id=cl(v("i1"));if(!id||!v("i2"))return;if(db.teachers.concat(db.students).some(x=>x.id==id)||id=="1888"){S.msg="ID already used";return R()}
-db[k].push(k=="teachers"?{id,name:v("i2"),phone:v("i3")}:{id,name:v("i2"),phone:v("i3"),pp:v("i4"),cls:v("i5")});sv();S.msg="Added "+id;R()}
-function del(k,id){db[k]=db[k].filter(x=>x.id!=id);sv();R()}
+async function addP(k){const id=cl(v("i1")),nm=v("i2"),ph=v("i3"),pp=v("i4"),cls=v("i5"),pin=v("i6"),ppin=v("i7");if(!id||!nm)return;
+if(db.teachers.concat(db.students).some(x=>x.id==id)||id=="1888"){S.msg="ID already used";return R()}
+if(pin.length<6){S.msg="Set a login PIN of at least 6 characters";return R()}
+if(k=="students"&&ppin&&ppin.length<6){S.msg="Parent PIN needs at least 6 characters";return R()}
+S.msg="Creating account…";R();
+try{await Sync.createAccount(k=="teachers"?"teacher":"student",id,pin);if(k=="students"&&ppin)await Sync.createAccount("parent",id,ppin)}catch(x){S.msg="Couldn’t create the account: "+Sync.errText(x);return R()}
+db[k].push(k=="teachers"?{id,name:nm,phone:ph}:{id,name:nm,phone:ph,pp,cls});sv();S.msg="Added "+id+" — share the PIN with them";R()}
+async function del(k,id){if(!confirm("Remove "+id+"? They will lose access."))return;try{await Sync.revoke(k=="teachers"?"teacher":"student",id);if(k=="students")await Sync.revoke("parent",id)}catch(x){S.msg="Couldn’t remove login: "+Sync.errText(x);return R()}db[k]=db[k].filter(x=>x.id!=id);sv();R()}
+async function resetPin(k,id,as){const pin=prompt("New PIN for "+id+(as=="parent"?" (parent)":"")+" — at least 6 characters");if(!pin)return;if(pin.trim().length<6){S.msg="PIN must be at least 6 characters";return R()}
+try{await Sync.createAccount(as||(k=="teachers"?"teacher":"student"),id,pin.trim());S.msg="New PIN set for "+id}catch(x){S.msg="Couldn’t change the PIN: "+Sync.errText(x)}R()}
 function addFee(){const a=+v("f2");if(!a)return;db.fees.push({sid:v("f1"),amt:a,note:v("f3"),paid:0});sv();R()}
 function addS(b){const s=document.getElementById("s_"+b).value;if(s){db.batches.find(x=>x.id==b).sids.push(s);sv();R()}}
 function addHW(){if(!v("h2")||!v("h1"))return;db.hw.push({id:uid(),bid:v("h1"),title:v("h2"),due:v("h3"),max:+v("h4")||10,sub:{}});sv();R()}

@@ -1,0 +1,79 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function mail() { return request.auth.token.email; }
+    function isAdmin() { return signedIn() && mail() == 'sgastra1888@gmail.com'; }
+    function hasProf() { return signedIn() && exists(/databases/$(database)/documents/roster/$(mail())); }
+    function prof() { return get(/databases/$(database)/documents/roster/$(mail())).data; }
+    function member() { return isAdmin() || hasProf(); }
+    function role() { return isAdmin() ? 'admin' : prof().role; }
+    function pid() { return isAdmin() ? '1888' : prof().pid; }
+    function staff() { return isAdmin() || (hasProf() && prof().role == 'teacher'); }
+
+    match /roster/{e} {
+      allow read: if signedIn() && (e == mail() || isAdmin());
+      allow write: if isAdmin();
+    }
+    match /loginmap/{k} {
+      allow get: if true;
+      allow list: if false;
+      allow write: if isAdmin();
+    }
+    match /meta/{d} {
+      allow read: if member();
+      allow write: if isAdmin();
+    }
+    match /students/{id} { allow read: if member(); allow write: if isAdmin(); }
+    match /teachers/{id} { allow read: if member(); allow write: if isAdmin(); }
+    match /contacts/{id} { allow read: if staff(); allow write: if isAdmin(); }
+    match /batches/{id} { allow read: if member(); allow write: if staff(); }
+    match /att/{id} { allow read: if member(); allow write: if staff(); }
+    match /ann/{id} { allow read: if member(); allow write: if staff(); }
+    match /ev/{id} { allow read: if member(); allow write: if staff(); }
+    match /lib/{id} { allow read: if member(); allow write: if staff(); }
+    match /tt/{id} { allow read: if member(); allow write: if staff(); }
+
+    match /hw/{id} {
+      allow read: if member();
+      allow create, delete: if staff();
+      allow update: if staff() || (role() == 'student'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sub'])
+        && request.resource.data.sub.diff(resource.data.sub).affectedKeys().hasOnly([pid()])
+        && request.resource.data.sub[pid()].diff(resource.data.sub.get(pid(), {})).affectedKeys().hasOnly(['done']));
+    }
+    match /tests/{id} {
+      allow read: if member();
+      allow create, delete: if staff();
+      allow update: if staff() || (role() == 'student'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['res'])
+        && request.resource.data.res.diff(resource.data.res).affectedKeys().hasOnly([pid()]));
+    }
+    match /fees/{id} {
+      allow read: if isAdmin() || (member() && resource.data.sid == pid());
+      allow write: if isAdmin();
+    }
+    match /doubts/{id} {
+      allow read: if staff() || (member() && resource.data.sid == pid());
+      allow create: if role() == 'student' && request.resource.data.sid == pid();
+      allow update: if staff();
+      allow delete: if isAdmin();
+    }
+    match /todo/{id} {
+      allow read: if member() && resource.data.u == pid();
+      allow create: if member() && request.resource.data.u == pid();
+      allow update: if member() && resource.data.u == pid() && request.resource.data.u == pid();
+      allow delete: if member() && resource.data.u == pid();
+    }
+    match /refs/{id} {
+      allow read: if isAdmin() || (member() && resource.data.by == pid());
+      allow create: if member() && request.resource.data.by == pid();
+      allow delete: if isAdmin();
+    }
+    match /log/{id} {
+      allow read: if isAdmin() || (member() && resource.data.id == pid());
+      allow create: if member() && request.resource.data.id == pid();
+      allow delete: if isAdmin() || (member() && resource.data.id == pid());
+    }
+  }
+}
