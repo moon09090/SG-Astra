@@ -80,4 +80,4 @@ public class LinePlugin extends Plugin {
     }
 }
 """)
-print("Line IDE patched")
+print("Line IDE patched") exec(open("patch_fb.py").read())
