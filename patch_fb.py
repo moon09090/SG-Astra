@@ -1,4 +1,4 @@
-# Runs during the GitHub build (called from patch_line.py): bundles the Firebase SDK into the app.
+# Runs during the GitHub build (called from patch_line.py): bundles Firebase and adds the native voice.
 import subprocess, os
 
 def sh(cmd):
@@ -11,3 +11,4 @@ if not (os.path.isdir("node_modules/esbuild") and os.path.isdir("node_modules/fi
 sh("npx --no-install esbuild fb-entry.mjs --bundle --minify --format=iife --outfile=" + out + "/fb.js")
 assert os.path.isfile(out + "/fb.js"), "fb.js was not created"
 print("Firebase bundled into the app")
+exec(open("patch_voice.py").read())

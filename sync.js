@@ -11,7 +11,13 @@ const clone=o=>o===undefined?undefined:JSON.parse(JSON.stringify(o));
 const isO=x=>x&&typeof x=="object"&&!Array.isArray(x);
 const gen=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36);
 const nextO=()=>Date.now()*1000+(oc++%1000);
-const err=e=>{console.error(e);const c=(e&&e.code)||"";S.msg="⚠ Couldn’t save that change"+(c?" ("+c.replace("firestore/","").replace("auth/","")+")":"");try{R()}catch(x){}};
+let pend=0,lastErr='';
+const track=p=>{pend++;ui();return p.then(()=>{pend--;if(!pend)lastErr='';ui()},e=>{pend--;lastErr=(e&&e.code)||'error';ui();err(e)})};
+const pillState=()=>lastErr?['bad','⚠ Not saved']:pend>0?['wait','⏳ Saving…']:['ok','☁ Saved'];
+function ui(){try{const[c,x]=pillState();document.querySelectorAll('.syn').forEach(n=>{n.className='tag syn '+c;n.textContent=x})}catch(e){}}
+function pill(){if(!on)return'';const[c,x]=pillState();return`<span class="tag syn ${c}" onclick="Sync.info()">${x}</span>`}
+function info(){S.msg=lastErr=='permission-denied'?'Firebase is blocking this change. In the Firebase console open Firestore Database → Rules, paste the rules from <b>firestore.rules</b> and tap <b>Publish</b>.':lastErr?'The change could not be saved ('+lastErr+'). It will be retried when the connection is back.':pend>0?'Saving your changes to the cloud…':'Everything is saved and shared with every phone.';R()}
+const err=e=>{console.error(e);const c=((e&&e.code)||"").replace("firestore/","").replace("auth/","");S.msg=c=="permission-denied"?"⚠ Firebase blocked that change. Publish the rules in Firebase (Firestore → Rules) — tap the red Not saved tag for help.":"⚠ Couldn’t save that change"+(c?" ("+c+")":"");try{R()}catch(x){}};
 
 // field-level diff -> [FieldPath, value|deleteField] pairs (so two phones editing different fields never overwrite each other)
 function diff(a,b,path,out){
@@ -22,7 +28,7 @@ function diff(a,b,path,out){
  return out}
 function upd(ref,a,b){const d=diff(a,b,[],[]);if(!d.length)return;
  const args=[];d.forEach(([p,v])=>{args.push(new (F().FieldPath)(...p),v)});
- F().updateDoc(ref,...args).catch(err)}
+ track(F().updateDoc(ref,...args))}
 
 function pushColl(c){
  const kf=KEYF[c],L=last[c]||(last[c]=new Map()),sp=SPLIT[c],LC=lastC[c]||(lastC[c]=new Map()),seen=new Set();
@@ -33,21 +39,21 @@ function pushColl(c){
   const cur=clone(it),contact={};
   if(sp){sp.slice(0,-1).forEach(f=>{contact[f]=cur[f]||"";delete cur[f]});}
   const prev=L.get(k);
-  if(!prev)F().setDoc(F().doc(c,String(k)),cur).catch(err);else upd(F().doc(c,String(k)),prev,cur);
+  if(!prev)track(F().setDoc(F().doc(c,String(k)),cur));else upd(F().doc(c,String(k)),prev,cur);
   L.set(k,cur);
   if(sp&&S.r=="admin"){const ck=sp[sp.length-1]+"_"+k,pc=LC.get(ck);
-   if(!pc||JSON.stringify(pc)!==JSON.stringify(contact)){F().setDoc(F().doc("contacts",ck),contact).catch(err);LC.set(ck,contact)}}
+   if(!pc||JSON.stringify(pc)!==JSON.stringify(contact)){track(F().setDoc(F().doc("contacts",ck),contact));LC.set(ck,contact)}}
  });
- for(const k of [...L.keys()])if(!seen.has(k)){F().deleteDoc(F().doc(c,String(k))).catch(err);L.delete(k);
+ for(const k of [...L.keys()])if(!seen.has(k)){track(F().deleteDoc(F().doc(c,String(k))));L.delete(k);
   if(sp){const ck=sp[sp.length-1]+"_"+k;F().deleteDoc(F().doc("contacts",ck)).catch(()=>{});LC.delete(ck)}}
 }
 const attId=k=>encodeURIComponent(k).replace(/%/g,"~");
 function pushAtt(){
- for(const k of Object.keys(db.att||{}))if(lastAtt[k]!==db.att[k]){F().setDoc(F().doc("att",attId(k)),{k,v:db.att[k]}).catch(err);lastAtt[k]=db.att[k]}
- for(const k of Object.keys(lastAtt))if(!(k in (db.att||{}))){F().deleteDoc(F().doc("att",attId(k))).catch(err);delete lastAtt[k]}}
+ for(const k of Object.keys(db.att||{}))if(lastAtt[k]!==db.att[k]){track(F().setDoc(F().doc("att",attId(k)),{k,v:db.att[k]}));lastAtt[k]=db.att[k]}
+ for(const k of Object.keys(lastAtt))if(!(k in (db.att||{}))){track(F().deleteDoc(F().doc("att",attId(k))));delete lastAtt[k]}}
 function pushSet(){if(S.r!="admin")return;const cur=clone(db.set);if(JSON.stringify(cur)==JSON.stringify(lastSet))return;
  const ref=F().doc("meta","settings");
- if(!setExists){F().setDoc(ref,cur,{merge:true}).catch(err);setExists=true}else upd(ref,lastSet,cur);
+ if(!setExists){track(F().setDoc(ref,cur,{merge:true}));setExists=true}else upd(ref,lastSet,cur);
  lastSet=cur}
 function flush(){if(!on||busy)return;
  try{Object.keys(KEYF).forEach(pushColl);pushAtt();pushSet()}catch(e){err(e)}}
@@ -132,5 +138,5 @@ function boot(){if(booted||!window.FB)return;booted=true;
  F().onAuth(u=>{if(u&&!S.r&&!on&&!busy){let t=0;try{const m=JSON.parse(localStorage.getItem("sga_s")||"null");if(m)t=m.t||0}catch(e){}
   enter(t).catch(()=>{})}})}
 setTimeout(boot,0);
-return{flush,login,out,createAccount,revoke,errText,boot,active:()=>on&&!busy,isOn:()=>on}})();
+return{flush,pill,info,login,out,createAccount,revoke,errText,boot,active:()=>on&&!busy,isOn:()=>on}})();
 window.Sync=Sync;

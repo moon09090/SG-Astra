@@ -23,10 +23,10 @@ const GO=["Overview","Code","Teaching","Learning","People","Manage","Schedule","
 Object.assign(GR,{Teacher:"Learning",Learn:"Learning",Practice:"Learning",Speak:"Learning",Phrasebook:"Learning",Profile:"Settings",Editor:"Code",Files:"Code",Lessons:"Learning",Assistant:"Learning",Settings:"Settings"});
 Object.assign(IC,{Teacher:"🧑‍🏫",Editor:"⌨️",Files:"🗂️",Lessons:"📘",Assistant:"✨",Settings:"⚙️"});
 function go(i){S.t=i;S.msg="";S.menu=0;R();scrollTo({top:0,behavior:"smooth"})}
-function sideBar(){const T=TABS[S.r];return`<div class="sbk ${S.menu?"on":""}" onclick="S.menu=0;R()"></div><aside class="side ${S.menu?"open":""}"><div class="sb-brand">${TTL[S.r]||"✦ SG Astra"}</div><div class="sb-user"><span class="tag">${S.r}</span> ${e(S.u.name)}</div>${GO.map(g=>{const L=T.filter(x=>(GR[x]||"Settings")==g);return L.length?`<h4>${g}</h4>${L.map(x=>`<div class="sb-i ${T[S.t]==x?"on":""}" onclick="go(${T.indexOf(x)})"><span>${IC[x]||"•"}</span>${x}</div>`).join("")}`:""}).join("")}<div class="sb-i" onclick="S.r=null;R()"><span>🚪</span>Exit</div></aside>`}
+function sideBar(){const T=TABS[S.r];return`<div class="sbk ${S.menu?"on":""}" onclick="S.menu=0;R()"></div><aside class="side ${S.menu?"open":""}"><div class="sb-brand">${TTL[S.r]||"✦ SG Astra"}</div><div class="sb-user"><span class="tag">${S.r}</span> ${e(S.u.name)}</div>${GO.map(g=>{const L=T.filter(x=>(GR[x]||"Settings")==g);return L.length?`<h4>${g}</h4>${L.map(x=>`<div class="sb-i ${T[S.t]==x?"on":""}" onclick="go(${T.indexOf(x)})"><span>${(window.tabIco?tabIco(x):IC[x]||"•")}</span>${x}</div>`).join("")}`:""}).join("")}<div class="sb-i" onclick="S.r=null;R()"><span>🚪</span>Exit</div></aside>`}
 function vnav(){const T=TABS[S.r],st=NS[curLy()]||"rail";if(st=="side")return sideBar();
-if(st=="hdock")return`<nav class="hdock">${T.map((x,i)=>`<div class="hi ${i==S.t?"on":""}" title="${x}" onclick="go(${i})"><i>${IC[x]||"•"}</i><span>${x}</span></div>`).join("")}</nav>`;
-return`<div class="vrail ${st}">${T.map((x,i)=>`<div class="vi ${i==S.t?"on":""}" title="${x}" onclick="go(${i})"><i>${IC[x]||"•"}</i><span>${x}</span></div>`).join("")}</div>`}
+if(st=="hdock")return`<nav class="hdock">${T.map((x,i)=>`<div class="hi ${i==S.t?"on":""}" title="${x}" onclick="go(${i})"><i>${(window.tabIco?tabIco(x):IC[x]||"•")}</i><span>${x}</span></div>`).join("")}</nav>`;
+return`<div class="vrail ${st}">${T.map((x,i)=>`<div class="vi ${i==S.t?"on":""}" title="${x}" onclick="go(${i})"><i>${(window.tabIco?tabIco(x):IC[x]||"•")}</i><span>${x}</span></div>`).join("")}</div>`}
 
 function curLy(){const c=window.SGA_CONFIG&&SGA_CONFIG.layout,v=db.set.lset?db.set.ly:(c?c:12);return v>=0&&v<NS.length?v:12}
 function admLy(i){db.set.ly=i;db.set.lset=1;sv();R()}

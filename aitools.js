@@ -121,6 +121,35 @@ X("doubt",[fT("in","Your doubt","Type your doubt…",5),fS("subj","Subject",["Ma
 X("bookS",[fX("in","Book title","e.g. Wings of Fire, Animal Farm"),fX("au","Author (optional)","e.g. A. P. J. Abdul Kalam"),fC(),fL()],
 "Sections: 'Plot in short' (5–6 bullets, no spoilers beyond what a summary needs), 'Characters' (kind terms 'name :: role and traits'), 'Themes' (bullets), 'Famous ideas or lines' (paraphrase, do not quote at length), 'Exam questions' (kind qa, 5 questions with model answers).","📕 Summarise book");
 
+
+const EX={sum:{in:"Photosynthesis is how green plants make food. Chlorophyll in the leaves absorbs sunlight. The plant takes in carbon dioxide through stomata and water through roots. Using light energy it turns these into glucose and releases oxygen. The glucose gives the plant energy and is stored as starch."},
+eli:{in:"Why is the sky blue?"},quiz:{in:"Fractions and decimals",n:"5",dif:"Medium"},fc:{in:"Parts of a plant cell",n:"10"},plan:{in:"Maths (weak in algebra), Science, English. School till 2 pm.",hrs:"3"},
+ttable:{in:"School 8 to 2. Tuition Mon/Wed 5 to 7 pm. Subjects: Maths, Science, English, Hindi"},outline:{in:"Social media and teenagers"},
+efb:{in:"Technology has changed our lives a lot. Mobile phones is very useful for study but also waste time. In my opinion we should use it wisely and not become addicted to it."},
+gram:{in:"Me and my friend goes to school by bus everyday and we was never late."},para:{in:"Regular exercise improves both physical health and mental well-being."},
+trans:{in:"Good morning! How are you today?",to:"Hindi"},math:{in:"Solve: 2x + 5 = 17, then find x squared."},phy:{in:"A car speeds up from 10 m/s to 30 m/s in 5 seconds. Find its acceleration and distance covered."},
+chem:{in:"Balance: Fe + O2 → Fe2O3",kind:"Balance an equation"},bio:{in:"Human heart and blood circulation"},hist:{in:"French Revolution",n:"8"},geo:{in:"Himalayas"},
+mnem:{in:"Planets of the solar system in order"},palace:{in:"Mitochondria, Nucleus, Ribosome, Golgi body, Lysosome",place:"My house"},mind:{in:"Indian Constitution"},
+cornell:{in:"The Mughal empire was founded by Babur in 1526 after the First Battle of Panipat. Akbar expanded it and followed a policy of religious tolerance."},
+gloss:{in:"Electricity"},comp:{a:"Mitosis",b:"Meiosis"},debate:{in:"Homework should be banned"},thesis:{in:"Schools should start later in the morning because teenagers need more sleep."},
+cite:{in:"Wings of Fire, A. P. J. Abdul Kalam, Universities Press, 1999"},slides:{in:"Climate change solutions",aud:"Class 10 students"},
+speech:{occ:"School annual day",in:"Thank teachers, celebrate achievements, motivate juniors"},rc:{in:"The Amazon rainforest, often called the lungs of the Earth, produces a large share of the world's oxygen. It is home to millions of species, but deforestation is shrinking it every year."},
+words:{in:"Class 10 English"},ielts:{in:"A memorable trip"},email:{in:"Ask my teacher for a two-day leave because of a family function",to:"My class teacher"},proj:{in:"Science"},sci:{in:"Electricity"},
+riddle:{in:"Maths"},tldr:{in:"Climate change refers to long-term shifts in temperatures and weather patterns. Since the 1800s human activities, mainly burning fossil fuels, have been the main driver of climate change, raising temperatures and causing more extreme weather."},
+code:{in:"for i in range(1,6):\n    print(i*i)"},debug:{in:"nums=[1,2,3]\nprint(nums[3])",err:"IndexError: list index out of range"},sql:{in:"Show the names of students who scored more than 80 marks",schema:"students(id, name, marks)"},
+excel:{in:"Sum of marks in column B only if the name in column A is Asha"},practice:{in:"Quadratic equations",n:"5"},pyq:{in:"Science — Light, reflection and refraction"},ans:{in:"Question: What is photosynthesis? My answer: Plants make food from sunlight."},
+analogy:{in:"Electric current"},resume:{in:"Class 12 topper, school coding club lead, built a quiz app, volunteer at a food drive",role:"Software intern"},cover:{role:"Content intern",co:"Acme Pvt Ltd",in:"Good writing, school magazine editor, creative"},
+interview:{in:"Bank PO"},career:{in:"I like maths and drawing, and I enjoy solving puzzles."},sch:{in:"I topped my school while helping at my father's shop and want to study engineering.",sch:"Merit scholarship"},
+bio2:{in:"Class 12 science student, loves coding and chess, wants to build useful apps"},tm:{in:"I study late at night, miss tuition homework, and waste time on my phone."},proc:{in:"Starting my maths revision"},
+stress:{in:"I have exams next week and I feel I can't finish the syllabus."},motiv:{in:"I want to score 90% in Class 10 but I feel tired and stuck."},doubt:{in:"Why does ice float on water?",subj:"Physics"},bookS:{in:"Wings of Fire"}};
+const VC={Hindi:"hi-IN",Hinglish:"en-IN",English:"en-US",Spanish:"es-ES",French:"fr-FR",Arabic:"ar-SA",Bengali:"bn-IN",Tamil:"ta-IN",Telugu:"te-IN",Urdu:"ur-PK",German:"de-DE",Japanese:"ja-JP",Korean:"ko-KR"};
+const HK="sga_aih";const aiHist=()=>{try{return JSON.parse(localStorage.getItem(HK)||"[]")}catch(x){return[]}};
+function aiSaveHist(id,u,r){try{const h=aiHist();h.unshift({id,u:String(u||"").slice(0,80),r});localStorage.setItem(HK,JSON.stringify(h.slice(0,24)))}catch(x){}}
+function HaiEx(id){const x=EX[id];if(!x)return;Object.keys(x).forEach(k=>HaiSet(id,k,x[k]));R();HaiRun(id)}
+function HaiHist(i){const h=aiHist()[i];if(!h)return;S.hc={id:h.id,m:[],r:[h.r],u:[""]};R()}
+function HaiShare(){const t=aiLast();if(!t)return;if(navigator.share)navigator.share({title:"SG Astra",text:t}).catch(()=>{});else HaiCopy()}
+const REFINE=[["Shorter","Make it shorter and more to the point."],["More detail","Explain in more detail with more points."],["Simpler words","Explain again in simpler words."],["More examples","Add more examples."],["Make it harder","Make it more challenging and advanced."]];
+
 const SCHEMA=`Reply with ONLY valid JSON (no markdown fences, no text outside the JSON) in exactly this shape: {"title":"short title","overview":"one friendly sentence","sections":[{"h":"Heading","icon":"one emoji","kind":"bullets|steps|qa|terms|table","pts":["short point"]}],"tip":"one useful tip"}. Rules: every point is a short clear sentence (max 28 words); kind "qa" points are "question :: answer"; kind "terms" points are "term :: meaning"; kind "table": first point is the header "A | B | C" and every other point is a row with the same columns; kind "steps" points are in order; use plain text (**bold** only for key words); no LaTeX, no HTML.`;
 const AIXfb=a=>({f:[fT("in",a[2],a[3],6),fS("depth","Detail",["Short","Standard","Detailed"],"Standard"),fL()],sys:(a[4]||"")+" Organise the answer into 3–6 sections with clear headings.",go:"✨ Ask AI"});
 const aix=a=>AIX[a[0]]||AIXfb(a);
@@ -165,13 +194,13 @@ const aiField=(id,f,i)=>{const val=HaiVal(id,f.k,f.t=="s"?f.d:(f.t=="n"?f.d:""))
  else c=`<input id="aif_${f.k}" placeholder="${e(f.p||"")}" value="${e(val)}" ${on}>`;
  return`<div class="aif${full}"><label>${e(f.l)}</label>${c}</div>`};
 function HaiV(a){const id=a[0],sp=aix(a),C=S.hc&&S.hc.id==id?S.hc:null,last=C&&C.r.length?C.r[C.r.length-1]:null;
- return`<div class="card aitool glass"><div class="aihead"><span class="aiic">${a[1]}</span><div><h3>${e(a[2])}</h3><small class="mut">${e(a[3]||"")}</small></div></div><div class="aifs">${sp.f.map((f,i)=>aiField(id,f,i)).join("")}</div><button class="aigo" onclick="HaiRun('${id}')" ${S.hbusy?"disabled":""}>${S.hbusy?"Thinking…":sp.go}</button>${AIKEY()?"":"<small class='mut'>The AI isn’t switched on yet. Ask your admin to add the API key.</small>"}</div>`
+ return`<div class="card aitool glass"><div class="aihead"><span class="aiic" style="--ah:${(a[0].split("").reduce((s,c)=>s+c.charCodeAt(0),0)*47)%360}">${a[1]}</span><div><h3>${e(a[2])}</h3><small class="mut">${e(a[3]||"")}</small></div></div><div class="aifs">${sp.f.map((f,i)=>aiField(id,f,i)).join("")}</div><button class="aigo" onclick="HaiRun('${id}')" ${S.hbusy?"disabled":""}>${S.hbusy?"Thinking…":sp.go}</button><div class="aiex">${EX[id]?`<button class="g" onclick="HaiEx('${id}')">✨ Try an example</button>`:""}${aiHist().map((h,i)=>({h,i})).filter(x=>x.h.id==id).slice(0,4).map(x=>`<button class="g" onclick="HaiHist(${x.i})">🕘 ${e(x.h.u.slice(0,22)||"Recent")}</button>`).join("")}</div>${AIKEY()?"":"<small class='mut'>The AI isn’t switched on yet. Ask your admin to add the API key.</small>"}</div>`
  +(S.hbusy&&S.hbusy==id?`<div class="card aisk"><i></i><i></i><i></i><i></i></div>`:"")
  +(C?C.r.map((r,i)=>(i>0&&C.u[i]?`<div class="aiu">You: ${e(C.u[i])}</div>`:"")+aiRes(r)).join(""):"")
- +(last?`<div class="card aiacts"><div class="chips"><button onclick="HaiCopy()">📋 Copy</button><button class="g" onclick="HaiSpeak()">🔊 Listen</button><button class="g" onclick="HaiNote()">⭐ Save to Notes</button><button class="g" onclick="HaiRun('${id}')">🔁 Redo</button><button class="g" onclick="S.hc=null;R()">✕ Clear</button></div><label>Ask a follow-up</label><div class="row nw"><input id="aifu" placeholder="e.g. make it shorter, explain step 2, give another example"><button class="sq" onclick="HaiRun('${id}',1)">Send</button></div></div>`:"")}
+ +(last?`<div class="card aiacts"><div class="chips"><button onclick="HaiCopy()">📋 Copy</button><button class="g" onclick="HaiSpeak()">🔊 Listen</button><button class="g" onclick="stopSpeak&&stopSpeak()">🔇 Stop</button><button class="g" onclick="HaiShare()">📤 Share</button><button class="g" onclick="HaiNote()">⭐ Save to Notes</button><button class="g" onclick="HaiRun('${id}')">🔁 Redo</button><button class="g" onclick="S.hc=null;R()">✕ Clear</button></div><div class="airef">${REFINE.map((x,i)=>`<button class="g" onclick="HaiRefine('${id}',${i})">${x[0]}</button>`).join("")}</div><label>Ask a follow-up</label><div class="row nw"><input id="aifu" placeholder="e.g. make it shorter, explain step 2, give another example"><button class="sq" onclick="HaiRun('${id}',1)">Send</button></div></div>`:"")}
 async function HaiRun(id,follow){const a=AIALL.find(x=>x[0]==id),sp=aix(a);if(!a)return;
  if(!AIKEY()){S.msg="The AI isn’t switched on yet. Ask your admin to add the API key.";return R()}
- sp.f.forEach(f=>{const el=document.getElementById("aif_"+f.k);if(el)HaiSet(id,f.k,el.value)});
+ sp.f.forEach(f=>{const el=document.getElementById("aif_"+f.k);if(el&&el.value&&!HaiVal(id,f.k,""))HaiSet(id,f.k,el.value)});
  const val=k=>HaiVal(id,k,""),main=val(sp.f[0].k).trim(),fu=follow?v("aifu"):"";
  if(follow&&!fu)return;if(!follow&&!main){S.msg="Please fill in “"+sp.f[0].l+"” first.";return R()}
  const ctx=sp.f.map(f=>{const x=val(f.k)||(f.t=="s"?f.d:"");return x?f.l+": "+x:""}).filter(Boolean).join("\n");
@@ -179,13 +208,14 @@ async function HaiRun(id,follow){const a=AIALL.find(x=>x[0]==id),sp=aix(a);if(!a
  let C=S.hc&&S.hc.id==id?S.hc:null;if(!follow||!C)C=S.hc={id,m:[],r:[],u:[]};
  C.m.push({role:"user",content:follow?fu:ctx});C.u.push(follow?fu:"");S.hbusy=id;R();
  try{const o=await aiChat([{role:"system",content:`You are SG Astra Study Hub's “${a[2]}” tool — an expert, patient and encouraging teacher for Indian school and college students. Today is ${today2()}. ${sp.sys} ${lang} ${SCHEMA}`},...C.m.slice(-8)]);
-  C.m.push({role:"assistant",content:o});C.r.push(aiParseOut(o));hxp&&hxp(2)}
+  C.m.push({role:"assistant",content:o});C.r.push(aiParseOut(o));aiSaveHist(id,follow?fu:main,C.r[C.r.length-1]);hxp&&hxp(2)}
  catch(x){C.m.pop();C.u.pop();S.msg="⚠ The AI couldn’t answer. Check your internet and try again."}
  S.hbusy=0;R()}
 const aiLast=()=>S.hc&&S.hc.r.length?aiFlat(S.hc.r[S.hc.r.length-1]):"";
+function HaiRefine(id,i){const el=document.getElementById('aifu');if(el)el.value=REFINE[i][1];else return;HaiRun(id,1)}
 function HaiCopy(){try{navigator.clipboard.writeText(aiLast());S.msg="Copied ✅"}catch(x){S.msg="Couldn’t copy on this device."}R()}
-function HaiSpeak(){const t=aiLast().replace(/[•*#]/g,"");speak(t.slice(0,1500),"en-US",.95)}
+function HaiSpeak(){const t=aiLast().replace(/[•*#]/g,"");if(!t){S.msg="Nothing to read yet.";return R()}const id=S.hc&&S.hc.id,lg=HaiVal(id,"lang","")||HaiVal(id,"to","");speak(t.slice(0,3500),VC[lg]||null,.95)}
 function HaiNote(){const C=S.hc;if(!C||!C.r.length)return;hl("notes").push({t:C.id+" · "+today(),tag:"AI",x:aiFlat(C.r[C.r.length-1]),d:today()});hsv();S.msg="Saved to Notes ✅";R()}
 
-Object.assign(window,{HaiV,HaiRun,HaiSet,HaiCopy,HaiSpeak,HaiNote,aiRich});
+Object.assign(window,{HaiV,HaiRun,HaiSet,HaiCopy,HaiSpeak,HaiNote,aiRich,HaiEx,HaiHist,HaiShare,HaiRefine});
 })();

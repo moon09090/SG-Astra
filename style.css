@@ -164,3 +164,34 @@ body[data-ly="12"]{background:radial-gradient(720px 440px at 8% -8%,color-mix(in
 @keyframes aish{to{background-position:-200% 0}}
 @media(max-width:420px){.aifs{grid-template-columns:1fr}}
 .bub .aipts li{padding:4px 0 4px 20px}.bub .aipts li::before{top:11px;width:7px;height:7px}
+
+/* ===== Professional animated icons ===== */
+.ti{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;overflow:visible;transition:transform .25s}
+.ti .f{fill:currentColor;fill-opacity:.16}
+.hi i{display:grid;place-items:center;height:26px}
+.hi:not(.on) .ti{color:var(--d)}
+.hi.on .ti{color:var(--bf);animation:tipop .6s cubic-bezier(.3,1.6,.5,1);filter:drop-shadow(0 2px 4px rgba(0,0,0,.25))}
+.hi.on .ti .f{fill-opacity:.3}
+.hi:hover .ti{transform:translateY(-2px) scale(1.08)}
+.hi:active .ti{transform:scale(.88)}
+@keyframes tipop{0%{transform:scale(.55) rotate(-14deg)}60%{transform:scale(1.2) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
+.hto>div:first-child,.tile.zone>b:first-child,.aiic{position:relative;width:58px;height:58px;margin:2px auto 8px;display:grid!important;place-items:center;border-radius:19px;font-size:28px!important;line-height:1;overflow:hidden;filter:none;
+ background:linear-gradient(145deg,hsl(var(--h,40) 85% 60%),hsl(calc(var(--h,40) + 38) 78% 38%));
+ box-shadow:0 12px 24px -10px hsl(var(--h,40) 90% 50%/.85),inset 0 1px 1px rgba(255,255,255,.55),inset 0 -7px 14px rgba(0,0,0,.28);
+ transition:transform .28s cubic-bezier(.3,1.5,.5,1);animation:orbf 4.5s ease-in-out infinite}
+.hto>div:first-child::after,.tile.zone>b:first-child::after,.aiic::after{content:"";position:absolute;left:0;right:0;top:0;height:52%;background:linear-gradient(rgba(255,255,255,.5),rgba(255,255,255,0));border-radius:19px 19px 60% 60%;pointer-events:none}
+.hto:nth-child(8n+1),.zone:nth-child(8n+1){--h:12}.hto:nth-child(8n+2),.zone:nth-child(8n+2){--h:38}.hto:nth-child(8n+3),.zone:nth-child(8n+3){--h:148}.hto:nth-child(8n+4),.zone:nth-child(8n+4){--h:188}
+.hto:nth-child(8n+5),.zone:nth-child(8n+5){--h:214}.hto:nth-child(8n+6),.zone:nth-child(8n+6){--h:262}.hto:nth-child(8n+7),.zone:nth-child(8n+7){--h:300}.hto:nth-child(8n+8),.zone:nth-child(8n+8){--h:340}
+.aiic{--h:var(--ah,262);width:54px;height:54px;margin:0}
+.hto:nth-child(3n)>div:first-child{animation-delay:-1.2s}.hto:nth-child(3n+1)>div:first-child{animation-delay:-2.6s}
+.hto:hover>div:first-child,.zone:hover>b:first-child{transform:translateY(-4px) rotate(-5deg) scale(1.08)}
+.hto:active>div:first-child,.zone:active>b:first-child{transform:scale(.93)}
+@keyframes orbf{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.syn{cursor:pointer}.syn.ok{color:#4ade80}.syn.wait{color:#facc15}.syn.bad{color:#f87171;border-color:#f87171;animation:synp 1.4s infinite}
+@keyframes synp{50%{opacity:.5}}
+@media(prefers-reduced-motion:reduce){.hto>div:first-child,.tile.zone>b:first-child,.aiic,.syn.bad,.hi.on .ti{animation:none}}
+/* ===== AI tool extras ===== */
+.aiex{display:flex;gap:6px;overflow-x:auto;padding:4px 0 2px;scrollbar-width:none}.aiex::-webkit-scrollbar{display:none}.aiex button{flex:0 0 auto;font-size:12.5px;padding:7px 12px}
+.airef{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 2px}.airef button{font-size:12.5px;padding:6px 11px}
+.aihist{margin-top:10px}.aihist small{display:block;opacity:.65;margin:2px 2px 4px}
+.aiacts .row{display:flex;gap:8px;align-items:center}.aiacts .row input{flex:1;min-width:0}.aiacts .row button{flex:0 0 auto}

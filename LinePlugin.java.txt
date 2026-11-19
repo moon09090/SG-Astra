@@ -1,0 +1,211 @@
+package com.sgastra.app;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
+import com.getcapacitor.JSObject;
+import com.getcapacitor.Plugin;
+import com.getcapacitor.PluginCall;
+import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.CapacitorPlugin;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+/** Opens the Line IDE and gives the web app a real, native text-to-speech voice. */
+@CapacitorPlugin(name = "LineIde")
+public class LinePlugin extends Plugin {
+
+    private TextToSpeech tts;
+    private boolean ttsReady = false;
+    private boolean ttsFailed = false;
+    private int utter = 0;
+    private final List<Runnable> waiting = new ArrayList<>();
+    private final List<PluginCall> waitingCalls = new ArrayList<>();
+
+    @PluginMethod
+    public void open(PluginCall call) {
+        Intent i = new Intent();
+        i.setClassName(getContext(), "com.line.ide.MainActivity");
+        getActivity().startActivity(i);
+        call.resolve();
+    }
+
+    private JSObject res(boolean ok, String reason) {
+        JSObject o = new JSObject();
+        o.put("ok", ok);
+        o.put("reason", reason);
+        return o;
+    }
+
+    private void emit(String event, JSObject data) {
+        notifyListeners(event, data);
+    }
+
+    /** Starts the engine once, then runs the queued speak requests. */
+    private void ensureTts(final PluginCall call, final Runnable then) {
+        if (ttsReady) {
+            then.run();
+            return;
+        }
+        if (ttsFailed) {
+            call.resolve(res(false, "engine"));
+            return;
+        }
+        waiting.add(then);
+        waitingCalls.add(call);
+        if (tts != null) {
+            return;
+        }
+        tts = new TextToSpeech(getContext().getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                List<Runnable> run = new ArrayList<>(waiting);
+                List<PluginCall> calls = new ArrayList<>(waitingCalls);
+                waiting.clear();
+                waitingCalls.clear();
+                if (status == TextToSpeech.SUCCESS) {
+                    ttsReady = true;
+                    tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                        @Override
+                        public void onStart(String utteranceId) {
+                        }
+
+                        @Override
+                        public void onDone(String utteranceId) {
+                            if (utteranceId != null && utteranceId.endsWith("_last")) {
+                                emit("ttsDone", res(true, "done"));
+                            }
+                        }
+
+                        @Override
+                        public void onError(String utteranceId) {
+                            emit("ttsDone", res(false, "error"));
+                        }
+                    });
+                    for (Runnable r : run) {
+                        r.run();
+                    }
+                } else {
+                    ttsFailed = true;
+                    tts = null;
+                    for (PluginCall c : calls) {
+                        c.resolve(res(false, "engine"));
+                    }
+                }
+            }
+        });
+    }
+
+    private List<String> chunks(String text, int max) {
+        List<String> out = new ArrayList<>();
+        String rest = text.trim();
+        while (rest.length() > max) {
+            int cut = Math.max(rest.lastIndexOf(". ", max), Math.max(rest.lastIndexOf("\n", max), rest.lastIndexOf(" ", max)));
+            if (cut < max / 2) {
+                cut = max;
+            }
+            out.add(rest.substring(0, cut + 1).trim());
+            rest = rest.substring(cut + 1).trim();
+        }
+        if (!rest.isEmpty()) {
+            out.add(rest);
+        }
+        return out;
+    }
+
+    private void doSpeak(PluginCall call, String text, String lang, float rate) {
+        try {
+            int r = tts.setLanguage(Locale.forLanguageTag(lang));
+            if (r == TextToSpeech.LANG_MISSING_DATA || r == TextToSpeech.LANG_NOT_SUPPORTED) {
+                call.resolve(res(false, "lang"));
+                return;
+            }
+            tts.setSpeechRate(rate);
+            tts.setPitch(1.0f);
+            tts.stop();
+            int max = Math.max(500, TextToSpeech.getMaxSpeechInputLength() - 20);
+            List<String> parts = chunks(text, max);
+            int id = ++utter;
+            for (int i = 0; i < parts.size(); i++) {
+                String uid = "sga" + id + "_" + i + (i == parts.size() - 1 ? "_last" : "");
+                tts.speak(parts.get(i), i == 0 ? TextToSpeech.QUEUE_FLUSH : TextToSpeech.QUEUE_ADD, new Bundle(), uid);
+            }
+            call.resolve(res(true, "ok"));
+        } catch (Exception e) {
+            call.resolve(res(false, "engine"));
+        }
+    }
+
+    @PluginMethod
+    public void speak(final PluginCall call) {
+        final String text = call.getString("text", "");
+        final String lang = call.getString("lang", "en-US");
+        final float rate = call.getFloat("rate", 0.95f);
+        if (text == null || text.trim().isEmpty()) {
+            call.resolve(res(true, "empty"));
+            return;
+        }
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ensureTts(call, new Runnable() {
+                    @Override
+                    public void run() {
+                        doSpeak(call, text, lang, rate);
+                    }
+                });
+            }
+        });
+    }
+
+    @PluginMethod
+    public void stop(final PluginCall call) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (tts != null && ttsReady) {
+                        tts.stop();
+                    }
+                } catch (Exception e) {
+                    // ignore
+                }
+                call.resolve(res(true, "stopped"));
+            }
+        });
+    }
+
+    @PluginMethod
+    public void voiceSettings(PluginCall call) {
+        try {
+            Intent i = new Intent("com.android.settings.TTS_SETTINGS");
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getActivity().startActivity(i);
+            call.resolve(res(true, "ok"));
+        } catch (Exception e) {
+            try {
+                Intent j = new Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+                j.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getActivity().startActivity(j);
+                call.resolve(res(true, "ok"));
+            } catch (Exception e2) {
+                call.resolve(res(false, "settings"));
+            }
+        }
+    }
+
+    @Override
+    protected void handleOnDestroy() {
+        try {
+            if (tts != null) {
+                tts.stop();
+                tts.shutdown();
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+        super.handleOnDestroy();
+    }
+}
