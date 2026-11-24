@@ -1,6 +1,6 @@
 // Bundled by esbuild into fb.js. Exposes window.FB for sync.js.
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signOut, onAuthStateChanged } from "firebase/auth";
 import { initializeFirestore, persistentLocalCache, collection, doc, getDoc, setDoc, updateDoc, deleteDoc, deleteField, FieldPath, onSnapshot, query, where } from "firebase/firestore";
 
 const cfg = {
@@ -18,9 +18,10 @@ let sec = null;
 const secAuth = () => { if (!sec) sec = getAuth(initializeApp(cfg, "sec")); return sec; };
 
 window.FB = {
-  auth,
+  auth, apiKey: cfg.apiKey, projectId: cfg.projectId,
   signIn: (e, p) => signInWithEmailAndPassword(auth, e, p),
   signOut: () => signOut(auth),
+  signInAnon: () => signInAnonymously(auth),
   onAuth: (f) => onAuthStateChanged(auth, f),
   createUser: async (e, p) => { const a = secAuth(); await createUserWithEmailAndPassword(a, e, p); await signOut(a); },
   coll: (n) => collection(fs, n),

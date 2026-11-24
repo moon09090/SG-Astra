@@ -1,20 +1,33 @@
 package com.sgastra.app;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.Uri;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import com.getcapacitor.JSObject;
+import com.getcapacitor.PermissionState;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
+import com.getcapacitor.annotation.PermissionCallback;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 /** Opens the Line IDE and gives the web app a real, native text-to-speech voice. */
-@CapacitorPlugin(name = "LineIde")
+@CapacitorPlugin(
+    name = "LineIde",
+    permissions = {
+        @Permission(strings = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, alias = "location"),
+        @Permission(strings = {Manifest.permission.POST_NOTIFICATIONS}, alias = "notifications")
+    }
+)
 public class LinePlugin extends Plugin {
 
     private TextToSpeech tts;
@@ -175,6 +188,127 @@ public class LinePlugin extends Plugin {
                 call.resolve(res(true, "stopped"));
             }
         });
+    }
+
+    @PluginMethod
+    public void openUrl(PluginCall call) {
+        String url = call.getString("url", "");
+        if (url == null || !url.startsWith("https://")) {
+            call.resolve(res(false, "url"));
+            return;
+        }
+        try {
+            Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getActivity().startActivity(i);
+            call.resolve(res(true, "ok"));
+        } catch (Exception e) {
+            call.resolve(res(false, "open"));
+        }
+    }
+
+    // ---------- Safety: battery, permissions, SOS location service, dialer ----------
+    @PluginMethod
+    public void battery(PluginCall call) {
+        Intent b = getContext().registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        int level = -1;
+        int scale = 100;
+        int status = -1;
+        if (b != null) {
+            level = b.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+            scale = b.getIntExtra(BatteryManager.EXTRA_SCALE, 100);
+            status = b.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        }
+        JSObject o = res(true, "ok");
+        o.put("level", level < 0 ? -1 : Math.round(level * 100f / scale));
+        o.put("charging", status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL);
+        call.resolve(o);
+    }
+
+    private JSObject permState() {
+        JSObject o = res(true, "ok");
+        o.put("granted", getPermissionState("location") == PermissionState.GRANTED);
+        o.put("notifications", getPermissionState("notifications") == PermissionState.GRANTED);
+        return o;
+    }
+
+    @PluginMethod
+    public void locationState(PluginCall call) {
+        call.resolve(permState());
+    }
+
+    @PluginMethod
+    public void requestLocation(PluginCall call) {
+        if (getPermissionState("location") == PermissionState.GRANTED) {
+            call.resolve(permState());
+            return;
+        }
+        requestPermissionForAlias("location", call, "permCallback");
+    }
+
+    @PluginMethod
+    public void requestNotifications(PluginCall call) {
+        if (getPermissionState("notifications") == PermissionState.GRANTED) {
+            call.resolve(permState());
+            return;
+        }
+        requestPermissionForAlias("notifications", call, "permCallback");
+    }
+
+    @PermissionCallback
+    private void permCallback(PluginCall call) {
+        call.resolve(permState());
+    }
+
+    @PluginMethod
+    public void startSos(PluginCall call) {
+        String id = call.getString("id", "");
+        String token = call.getString("token", "");
+        String project = call.getString("project", "");
+        if (id == null || id.isEmpty() || token == null || token.isEmpty() || project == null || project.isEmpty()) {
+            call.resolve(res(false, "args"));
+            return;
+        }
+        try {
+            Intent i = new Intent(getContext(), SosService.class);
+            i.putExtra("id", id);
+            i.putExtra("token", token);
+            i.putExtra("refresh", call.getString("refresh", ""));
+            i.putExtra("apiKey", call.getString("apiKey", ""));
+            i.putExtra("project", project);
+            i.putExtra("everyMs", call.getInt("everyMs", 5000));
+            getContext().startForegroundService(i);
+            call.resolve(res(true, "ok"));
+        } catch (Exception e) {
+            call.resolve(res(false, "service"));
+        }
+    }
+
+    @PluginMethod
+    public void stopSos(PluginCall call) {
+        try {
+            getContext().stopService(new Intent(getContext(), SosService.class));
+        } catch (Exception e) {
+            // ignore
+        }
+        call.resolve(res(true, "stopped"));
+    }
+
+    @PluginMethod
+    public void dial(PluginCall call) {
+        String num = call.getString("number", "");
+        if (num == null || !num.matches("[0-9+*# ]{3,20}")) {
+            call.resolve(res(false, "number"));
+            return;
+        }
+        try {
+            Intent i = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + num.replace(" ", "")));
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getActivity().startActivity(i);
+            call.resolve(res(true, "ok"));
+        } catch (Exception e) {
+            call.resolve(res(false, "dial"));
+        }
     }
 
     @PluginMethod

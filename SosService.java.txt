@@ -1,0 +1,232 @@
+package com.sgastra.app;
+
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.Service;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.ServiceInfo;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.BatteryManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.IBinder;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * Foreground service that keeps sending the student's GPS position to their SOS record every few seconds,
+ * even when the app is in the background or closed. A visible notification is always shown while it runs.
+ */
+public class SosService extends Service implements LocationListener {
+
+    private static final String CHANNEL = "sga_sos_share";
+    private static final int NOTE_ID = 7001;
+
+    private LocationManager lm;
+    private String id = "";
+    private String token = "";
+    private String refresh = "";
+    private String apiKey = "";
+    private String project = "";
+    private long everyMs = 5000;
+    private long tokenExpires = 0;
+    private long lastSent = 0;
+    private boolean running = false;
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent == null) {
+            stopSelf();
+            return START_NOT_STICKY;
+        }
+        id = str(intent.getStringExtra("id"));
+        token = str(intent.getStringExtra("token"));
+        refresh = str(intent.getStringExtra("refresh"));
+        apiKey = str(intent.getStringExtra("apiKey"));
+        project = str(intent.getStringExtra("project"));
+        everyMs = Math.max(3000, intent.getIntExtra("everyMs", 5000));
+        tokenExpires = System.currentTimeMillis() + 50 * 60 * 1000;
+        if (id.isEmpty() || token.isEmpty() || project.isEmpty()) {
+            stopSelf();
+            return START_NOT_STICKY;
+        }
+        showNotification();
+        startUpdates();
+        return START_NOT_STICKY;
+    }
+
+    private static String str(String s) {
+        return s == null ? "" : s;
+    }
+
+    private void showNotification() {
+        NotificationManager nm = getSystemService(NotificationManager.class);
+        if (Build.VERSION.SDK_INT >= 26) {
+            NotificationChannel ch = new NotificationChannel(CHANNEL, "Emergency location sharing", NotificationManager.IMPORTANCE_LOW);
+            nm.createNotificationChannel(ch);
+        }
+        Notification n = new Notification.Builder(this, CHANNEL)
+            .setContentTitle("SOS is active")
+            .setContentText("Sharing your live location with your teachers until the emergency is closed.")
+            .setSmallIcon(android.R.drawable.ic_dialog_alert)
+            .setOngoing(true)
+            .build();
+        if (Build.VERSION.SDK_INT >= 29) {
+            startForeground(NOTE_ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+        } else {
+            startForeground(NOTE_ID, n);
+        }
+    }
+
+    private void startUpdates() {
+        if (running) {
+            return;
+        }
+        lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+        try {
+            if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, everyMs, 0f, this);
+            }
+            if (lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, everyMs, 0f, this);
+            }
+            running = true;
+        } catch (SecurityException e) {
+            stopSelf();
+        }
+    }
+
+    @Override
+    public void onLocationChanged(final Location loc) {
+        long now = System.currentTimeMillis();
+        if (now - lastSent < everyMs - 700) {
+            return;
+        }
+        lastSent = now;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                send(loc);
+            }
+        }).start();
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+    }
+
+    private int battery() {
+        Intent b = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        if (b == null) {
+            return -1;
+        }
+        int level = b.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale = b.getIntExtra(BatteryManager.EXTRA_SCALE, 100);
+        return level < 0 ? -1 : Math.round(level * 100f / scale);
+    }
+
+    private void refreshToken() {
+        if (refresh.isEmpty() || apiKey.isEmpty()) {
+            return;
+        }
+        try {
+            URL u = new URL("https://securetoken.googleapis.com/v1/token?key=" + apiKey);
+            HttpURLConnection c = (HttpURLConnection) u.openConnection();
+            c.setRequestMethod("POST");
+            c.setConnectTimeout(8000);
+            c.setReadTimeout(8000);
+            c.setDoOutput(true);
+            c.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            byte[] body = ("grant_type=refresh_token&refresh_token=" + refresh).getBytes(StandardCharsets.UTF_8);
+            OutputStream os = c.getOutputStream();
+            os.write(body);
+            os.close();
+            if (c.getResponseCode() == 200) {
+                java.io.InputStream is = c.getInputStream();
+                java.util.Scanner s = new java.util.Scanner(is, "UTF-8").useDelimiter("\\A");
+                String txt = s.hasNext() ? s.next() : "";
+                is.close();
+                Matcher m = Pattern.compile("\"id_token\"\\s*:\\s*\"([^\"]+)\"").matcher(txt);
+                if (m.find()) {
+                    token = m.group(1);
+                    tokenExpires = System.currentTimeMillis() + 50 * 60 * 1000;
+                }
+            }
+            c.disconnect();
+        } catch (Exception e) {
+            // keep the old token; the next try may work
+        }
+    }
+
+    private int post(Location loc, int bat) throws Exception {
+        String base = "https://firestore.googleapis.com/v1/projects/" + project + "/databases/(default)/documents/sos/" + id;
+        String mask = "?updateMask.fieldPaths=lat&updateMask.fieldPaths=lng&updateMask.fieldPaths=acc&updateMask.fieldPaths=ut&updateMask.fieldPaths=bat";
+        String json = String.format(Locale.US,
+            "{\"fields\":{\"lat\":{\"doubleValue\":%.6f},\"lng\":{\"doubleValue\":%.6f},\"acc\":{\"doubleValue\":%.1f},\"ut\":{\"integerValue\":\"%d\"},\"bat\":{\"integerValue\":\"%d\"}}}",
+            loc.getLatitude(), loc.getLongitude(), loc.getAccuracy(), System.currentTimeMillis(), bat);
+        HttpURLConnection c = (HttpURLConnection) new URL(base + mask).openConnection();
+        c.setRequestMethod("POST");
+        c.setRequestProperty("X-HTTP-Method-Override", "PATCH");
+        c.setRequestProperty("Content-Type", "application/json");
+        c.setRequestProperty("Authorization", "Bearer " + token);
+        c.setConnectTimeout(8000);
+        c.setReadTimeout(8000);
+        c.setDoOutput(true);
+        OutputStream os = c.getOutputStream();
+        os.write(json.getBytes(StandardCharsets.UTF_8));
+        os.close();
+        int code = c.getResponseCode();
+        c.disconnect();
+        return code;
+    }
+
+    private void send(Location loc) {
+        try {
+            if (System.currentTimeMillis() > tokenExpires) {
+                refreshToken();
+            }
+            int code = post(loc, battery());
+            if (code == 401 || code == 403) {
+                refreshToken();
+                post(loc, battery());
+            }
+        } catch (Exception e) {
+            // offline: the next fix will try again
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        try {
+            if (lm != null) {
+                lm.removeUpdates(this);
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+        running = false;
+        super.onDestroy();
+    }
+}

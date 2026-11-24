@@ -2,7 +2,7 @@
 // this file mirrors every change to Firestore and applies other phones' changes live.
 const Sync=(()=>{
 const ADMIN="sgastra1888@gmail.com";
-const KEYF={teachers:"id",students:"id",batches:"id",hw:"id",tests:"id",lib:"id",tt:"id",ev:"id",todo:"id",ann:0,fees:0,doubts:0,refs:0,log:0};
+const KEYF={teachers:"id",students:"id",batches:"id",hw:"id",tests:"id",lib:"id",tt:"id",ev:"id",todo:"id",ann:0,fees:0,doubts:0,refs:0,log:0,reports:0,delreq:0,sos:0};
 const SPLIT={students:["phone","pp","s"],teachers:["phone","t"]};
 const SHARED=["teachers","students","batches","hw","tests","lib","tt","ev","ann"];
 let setExists=false,on=false,busy=false,unsubs=[],last={},lastC={},lastAtt={},lastSet={},cont={},oc=0,rt=0,booted=false;
@@ -83,12 +83,13 @@ function listen(role,pid){
  SHARED.forEach(c=>add(F().coll(c),s=>applyColl(c,s)));
  add(F().coll("att"),applyAtt);
  add(F().doc("meta","settings"),s=>{setExists=s.exists();if(setExists)Object.assign(db.set,s.data());lastSet=clone(db.set)});
- if(staff){add(F().coll("doubts"),s=>applyColl("doubts",s));
+ if(staff){add(F().coll("sos"),s=>applyColl("sos",s));add(F().coll("doubts"),s=>applyColl("doubts",s));
   add(F().coll("contacts"),s=>{cont={};s.forEach(d=>{cont[d.id]=d.data()});mergeContacts()})}
  else add(q("doubts","sid",pid),s=>applyColl("doubts",s));
- if(role=="admin"){add(F().coll("fees"),s=>applyColl("fees",s));add(F().coll("refs"),s=>applyColl("refs",s));add(F().coll("log"),s=>applyColl("log",s))}
+ if(role=="admin"){add(F().coll("fees"),s=>applyColl("fees",s));add(F().coll("refs"),s=>applyColl("refs",s));add(F().coll("log"),s=>applyColl("log",s));add(F().coll("reports"),s=>applyColl("reports",s));add(F().coll("delreq"),s=>applyColl("delreq",s))}
  else{add(q("log","id",pid),s=>applyColl("log",s));
   if(role=="student"||role=="parent")add(q("fees","sid",pid),s=>applyColl("fees",s));
+  if(role=="student")add(q("sos","sid",pid),s=>applyColl("sos",s));
   if(role=="student"){add(q("todo","u",pid),s=>applyColl("todo",s));add(q("refs","by",pid),s=>applyColl("refs",s))}}
  return Promise.race([Promise.all(P),new Promise(r=>setTimeout(r,12000))])}
 
@@ -107,8 +108,8 @@ async function enter(t){
   if(!prof)throw{code:"no-profile"};
   S.r=role;S.u=prof;S.t=Math.min(t||0,TABS[role].length-1);S.msg="";
  }catch(e){busy=false;out();throw e}
- busy=false;R()}
-function out(){on=false;reset();try{F().signOut()}catch(e){}}
+ busy=false;R();try{window.pushInit&&pushInit()}catch(x){}}
+function out(){on=false;try{window.pushReset&&pushReset()}catch(x){}reset();try{F().signOut()}catch(e){}}
 
 async function login(role,id,pin){
  if(!window.FB)throw{code:"fb-missing"};
@@ -131,12 +132,19 @@ async function revoke(role,id){const key=({student:"s",teacher:"t",parent:"p"})[
  const d=await F().getDoc(F().doc("loginmap",key));if(!d.exists())return;
  await F().deleteDoc(F().doc("roster",d.data().e));await F().deleteDoc(F().doc("loginmap",key))}
 
+async function authInfo(){const u=F().auth.currentUser;if(!u)throw{code:"no-access"};return{token:await u.getIdToken(),refresh:u.refreshToken,apiKey:F().apiKey,project:F().projectId}}
+async function saveToken(o){if(!on)return;await F().setDoc(F().doc("tokens",String(o.tok)),{tok:String(o.tok),pid:String(o.pid),role:String(o.role),t:Date.now()})}
+async function report(r){if(!window.FB)throw{code:"fb-missing"};
+ if(!F().auth.currentUser)await F().signInAnon();
+ const k=gen();r._k=k;r._o=nextO();await F().setDoc(F().doc("reports",k),clone(r))}
+async function requestDeletion(){if(!on||!S.u)throw{code:"no-access"};
+ const k=gen();await F().setDoc(F().doc("delreq",k),{_k:k,_o:nextO(),by:S.u.id,name:S.u.name||"",role:S.r,d:new Date().toISOString()})}
 const TXT={"fb-missing":"The Firebase part is missing from this app build. Install the APK from the ui-upgrade run (Artifacts) and check that the build step “Add Line IDE” finished.","auth/operation-not-allowed":"Email/Password sign-in is switched off in Firebase (Authentication → Sign-in method).","auth/invalid-api-key":"Firebase rejected the app’s API key.","auth/network-request-failed":"No internet connection (or Firebase is blocked on this network)","auth/invalid-credential":"Wrong ID or PIN","auth/wrong-password":"Wrong ID or PIN","auth/user-not-found":"Wrong ID or PIN","auth/too-many-requests":"Too many tries — wait a few minutes","auth/network-request-failed":"No internet connection","auth/weak-password":"PIN must be at least 6 characters","auth/email-already-in-use":"That account already exists — try again","no-access":"This account has no access","no-profile":"Your profile was removed — ask the admin","permission-denied":"Not allowed"};
 const errText=e=>TXT[e&&e.code]||("Something went wrong: "+((e&&(e.code||e.message))||String(e)).toString().slice(0,140));
 
 function boot(){if(booted||!window.FB)return;booted=true;
- F().onAuth(u=>{if(u&&!S.r&&!on&&!busy){let t=0;try{const m=JSON.parse(localStorage.getItem("sga_s")||"null");if(m)t=m.t||0}catch(e){}
+ F().onAuth(u=>{if(u&&!u.isAnonymous&&!S.r&&!on&&!busy){let t=0;try{const m=JSON.parse(localStorage.getItem("sga_s")||"null");if(m)t=m.t||0}catch(e){}
   enter(t).catch(()=>{})}})}
 setTimeout(boot,0);
-return{flush,pill,info,login,out,createAccount,revoke,errText,boot,active:()=>on&&!busy,isOn:()=>on}})();
+return{flush,pill,info,saveToken,authInfo,report,requestDeletion,login,out,createAccount,revoke,errText,boot,active:()=>on&&!busy,isOn:()=>on}})();
 window.Sync=Sync;

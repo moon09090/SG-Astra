@@ -70,6 +70,27 @@ service cloud.firestore {
       allow create: if member() && request.resource.data.by == pid();
       allow delete: if isAdmin();
     }
+    match /sos/{id} {
+      allow read: if staff() || (role() == 'student' && resource.data.sid == pid());
+      allow create: if role() == 'student' && request.resource.data.sid == pid() && request.resource.data.status == 'active';
+      allow update: if staff() || (role() == 'student' && resource.data.sid == pid() && resource.data.status == 'active'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lat','lng','acc','ut','bat','cat','safe']));
+      allow delete: if isAdmin();
+    }
+    match /tokens/{id} {
+      allow create, update: if member() && request.resource.data.pid == pid();
+      allow delete: if member() && resource.data.pid == pid();
+      allow read: if isAdmin();
+    }
+    match /reports/{id} {
+      allow create: if signedIn() && request.resource.data.keys().hasOnly(['_k','_o','by','name','role','tool','text','why','d','src'])
+        && request.resource.data.text is string && request.resource.data.text.size() < 2000;
+      allow read, delete: if isAdmin();
+    }
+    match /delreq/{id} {
+      allow create: if member() && request.resource.data.by == pid();
+      allow read, update, delete: if isAdmin();
+    }
     match /log/{id} {
       allow read: if isAdmin() || (member() && resource.data.id == pid());
       allow create: if member() && request.resource.data.id == pid();

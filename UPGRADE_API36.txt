@@ -1,0 +1,12 @@
+ANDROID 16 (API 36) UPGRADE - optional, do it on its own branch, after the normal build is green.
+
+Why: Google Play now requires new apps and updates to target Android 16 (API 36). Capacitor 7 (what the app uses now) targets API 35.
+What changes: Capacitor 7 -> 8 (uses Android Gradle Plugin 8.13, compile/target SDK 36, needs Node 22 and Java 21 - your workflow already has both)
+              and the Python engine plugin Chaquopy 16.1.0 -> 17.0.0 (supports that Android Gradle Plugin).
+
+If you edit on the GitHub website instead of Termux, make these two edits:
+ 1. package.json: change the three lines  "@capacitor/android", "@capacitor/cli", "@capacitor/core"  from "^7.0.0" to "^8.0.0".
+ 2. patch_line.py: change  com.chaquo.python:gradle:16.1.0  to  com.chaquo.python:gradle:17.0.0
+ 3. In the workflow file add your new branch name (for example api36) to  branches: [...]
+
+If the build fails, send the log zip. The most likely culprits are the Kotlin/Compose versions in patch_line.py - I will adjust them.

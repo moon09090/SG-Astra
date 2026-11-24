@@ -1,0 +1,33 @@
+# Put this file at  .github/workflows/firebase-deploy.yml  (GitHub: Add file > Create new file, type that path).
+# Deploys the security rules (free) and the cloud functions (needs the Blaze plan) to your Firebase project.
+# One-time setup: Firebase console > Project settings > Service accounts > Generate new private key,
+# then GitHub repo > Settings > Secrets and variables > Actions > New secret named FIREBASE_SERVICE_ACCOUNT (paste the whole JSON).
+name: Deploy Firebase
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [main, ui-upgrade]
+    paths: ["functions/**", "firestore.rules", "firebase.json"]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check the secret exists
+        run: |
+          if [ -z "$FIREBASE_SA" ]; then echo "::error::Add the repository secret FIREBASE_SERVICE_ACCOUNT first"; exit 1; fi
+      - run: npm --prefix functions install
+      - name: Write credentials
+        run: |
+          printf '%s' "$FIREBASE_SA" > "$HOME/sa.json"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/sa.json" >> "$GITHUB_ENV"
+      - name: Deploy security rules
+        run: npx --yes firebase-tools@latest deploy --only firestore:rules --project sgastra-90b3c --non-interactive
+      - name: Deploy cloud functions (needs Blaze)
+        continue-on-error: true
+        run: npx --yes firebase-tools@latest deploy --only functions --project sgastra-90b3c --non-interactive
